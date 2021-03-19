@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">AndroidProject</string>
     <string name="title_activity_navigation">NavigationActivity</string>
+    <string name="login_btn">login</string>
+    <string name="create_account">Create new account?</string>
+    <string name="signUp_btn">sign up</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Android Studio</string>
