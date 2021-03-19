@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.androidproject.navigation_drawer_activity.NavigationActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -41,7 +42,7 @@ public class SignupActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(task.isSuccessful()){
                             Toast.makeText(SignupActivity.this, "Registered successfuly", Toast.LENGTH_SHORT).show();
-                            Intent intent =new Intent(getApplicationContext(),HomeActivity.class);
+                            Intent intent =new Intent(getApplicationContext(), NavigationActivity.class);
                             startActivity(intent);
                         }else{
                             Toast.makeText(SignupActivity.this, "Registeration failed", Toast.LENGTH_SHORT).show();

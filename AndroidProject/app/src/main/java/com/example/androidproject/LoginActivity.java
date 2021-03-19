@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.androidproject.navigation_drawer_activity.NavigationActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -32,6 +33,7 @@ public class LoginActivity extends AppCompatActivity {
         passwordTxt =findViewById(R.id.password_txt);
         loginBtn = findViewById(R.id.login_btn);
         createAccount =findViewById(R.id.create_account);
+        myAuth = FirebaseAuth.getInstance();
 
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -45,7 +47,7 @@ public class LoginActivity extends AppCompatActivity {
                         if(task.isSuccessful()){
                             FirebaseUser user = myAuth.getCurrentUser();
                             Toast.makeText(LoginActivity.this, "Login successfuly", Toast.LENGTH_SHORT).show();
-                            Intent intent =new Intent(LoginActivity.this,HomeActivity.class);
+                            Intent intent =new Intent(LoginActivity.this, NavigationActivity.class);
                             startActivity(intent);
                         }else{
                             Toast.makeText(LoginActivity.this, "Login failed", Toast.LENGTH_SHORT).show();
