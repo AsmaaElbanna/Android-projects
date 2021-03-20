@@ -2,6 +2,9 @@ package com.example.androidproject.navigation_drawer_activity.ui.upcoming;
 
 import androidx.lifecycle.ViewModelProvider;
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -13,22 +16,28 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.androidproject.R;
 import com.example.androidproject.navigation_drawer_activity.model.TripData;
+import com.example.androidproject.navigation_drawer_activity.support.DataTransfer;
 import com.example.androidproject.navigation_drawer_activity.support.MyAdapter;
 
 import java.util.ArrayList;
 
-public class UpcomingFragment extends Fragment {
+public class UpcomingFragment extends Fragment implements DataTransfer {
 
     private UpcomingViewModel mViewModel;
-
     private final String TAG = "tag";
-
     private ArrayList<TripData> upcomingTrips;
     private RecyclerView recyclerView;
     private MyAdapter myAdapter;
+    private Button btnStart;
+    String destination;
+    TextView tvDestination;
+
 
     public static UpcomingFragment newInstance() {
         return new UpcomingFragment();
@@ -55,14 +64,37 @@ public class UpcomingFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         upcomingTrips = new ArrayList<>();
         upcomingTrips.add(new TripData("first trip",
-                "Alexandria","Cairo",
-                "13/06/2021","5:45 PM",TripData.TripStatus.oneWay));
+                "Alex", "Cairo",
+                "13/06/2021", "5:45 PM", TripData.TripStatus.oneWay));
         upcomingTrips.add(new TripData("return trip",
-                "Cairo","Alexandria",
-                "20/06/2021","9:45 PM",TripData.TripStatus.oneWay));
+                "Cairo", "Alex",
+                "20/06/2021", "9:45 PM", TripData.TripStatus.oneWay));
 
-        myAdapter = new MyAdapter(this.getContext(),upcomingTrips);
+        myAdapter = new MyAdapter(this.getContext(), upcomingTrips,this);
         recyclerView.setAdapter(myAdapter);
+        tvDestination = view.findViewById(R.id.trip_row_endLbl);
+
+
     }
 
+    private void DisplayMap(String destination) {
+        try {
+            Uri uri = Uri.parse("https://www.google.co.in/maps/dir//" + destination);
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            intent.setPackage("com.google.android.apps.maps");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Uri uri = Uri.parse("http://play.google.com/store/apps/details?id=com.google.android.apps.maps");
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        }
+    }
+
+
+    @Override
+    public void startMap(String dest) {
+        DisplayMap(dest);
+    }
 }

@@ -9,9 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
@@ -22,19 +20,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.androidproject.R;
 import com.example.androidproject.navigation_drawer_activity.model.TripData;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
     private static final String TAG = "TAG";
     private final Context context;
     private ArrayList<TripData> trips;
+    private DataTransfer delegate ;
 
-    public MyAdapter(Context _context, ArrayList<TripData> _trips){
+    public MyAdapter(Context _context, ArrayList<TripData> _trips, DataTransfer _delegate){
         context = _context;
         trips = _trips;
+        delegate = _delegate;
     }
 
     @NonNull
@@ -56,7 +54,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
         holder.startBtn.setOnClickListener((event)->{
             Log.i(TAG, "onBindViewHolder: START PRESSED : "+position );
-            //start trip code.
+            delegate.startMap(trips.get(position).tripEndPoint);
         });
         holder.notesBtn.setOnClickListener((event)->{
             Log.i(TAG, "onBindViewHolder: NOTES PRESSED : "+position);
@@ -66,12 +64,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             showPopup(holder.menuBtn,position);
         });
 
-        holder.view.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return false;
-            }
-        });
     }
 
     public void showPopup(View v,int position) {
@@ -135,7 +127,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             timeLbl = itemView.findViewById(R.id.trip_row_timeLbl);
             startPoint = itemView.findViewById(R.id.trip_row_startLbl);
             endPoint = itemView.findViewById(R.id.trip_row_endLbl);
-            startBtn = itemView.findViewById(R.id.trip_row_startBtn);
+            startBtn = itemView.findViewById(R.id.btnStart);
             notesBtn = itemView.findViewById(R.id.trip_row_notesBtn);
             menuBtn = itemView.findViewById(R.id.trip_row_optionsBtn);
             constraintLayout = itemView.findViewById(R.id.trip_row_layout);
