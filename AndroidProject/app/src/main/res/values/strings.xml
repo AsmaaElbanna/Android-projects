@@ -19,4 +19,13 @@
     <string name="Map">Map</string>
     <string name="Sync">Sync</string>
     <string name="SignOut">Sign out</string>
+    <string name="Date">13/06/2021</string>
+    <string name="Time">5:45 PM</string>
+    <string name="Start">Alexandria</string>
+    <string name="End">Cairo</string>
+    <string name="Name">Trial Trip</string>
+    <string name="StartTrip">Start Trip</string>
+    <string name="notes">notes</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_remove">Remove</string>
 </resources>
