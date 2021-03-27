@@ -28,16 +28,23 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     private final Context context;
     private ArrayList<TripData> trips;
     private DataTransfer delegate ;
+    private Status listStatus;
 
-    public MyAdapter(Context _context, ArrayList<TripData> _trips, DataTransfer _delegate){
+    public enum Status{
+        UPCOMING,
+        HISTORY
+    }
+
+    public MyAdapter(Context _context, ArrayList<TripData> _trips, DataTransfer _delegate,Status _listStatus){
         context = _context;
         trips = _trips;
         delegate = _delegate;
+        listStatus = _listStatus;
     }
 
     @NonNull
     @Override
-    public MyAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View v = inflater.inflate(R.layout.recycler_trip_row,parent,false);
         ViewHolder vh = new ViewHolder(v);
@@ -131,6 +138,16 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             notesBtn = itemView.findViewById(R.id.trip_row_notesBtn);
             menuBtn = itemView.findViewById(R.id.trip_row_optionsBtn);
             constraintLayout = itemView.findViewById(R.id.trip_row_layout);
+
+            switch (listStatus){
+                case HISTORY:
+                    startBtn.setVisibility(View.GONE);
+                    notesBtn.setVisibility(View.GONE);
+                    break;
+
+                default:
+                    break;
+            }
         }
     }
 }

@@ -2,9 +2,11 @@ package com.example.androidproject.navigation_drawer_activity.ui.upcoming;
 
 import androidx.lifecycle.ViewModelProvider;
 
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
+import android.nfc.Tag;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -13,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,10 +23,13 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.androidproject.AddTripActivity;
 import com.example.androidproject.R;
+import com.example.androidproject.navigation_drawer_activity.NavigationActivity;
 import com.example.androidproject.navigation_drawer_activity.model.TripData;
 import com.example.androidproject.navigation_drawer_activity.support.DataTransfer;
 import com.example.androidproject.navigation_drawer_activity.support.MyAdapter;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 
@@ -34,10 +40,9 @@ public class UpcomingFragment extends Fragment implements DataTransfer {
     private ArrayList<TripData> upcomingTrips;
     private RecyclerView recyclerView;
     private MyAdapter myAdapter;
-    private Button btnStart;
-    String destination;
+    public static int id;
     TextView tvDestination;
-
+    FloatingActionButton btnAdd;
 
     public static UpcomingFragment newInstance() {
         return new UpcomingFragment();
@@ -46,7 +51,9 @@ public class UpcomingFragment extends Fragment implements DataTransfer {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        id = getId();
         return inflater.inflate(R.layout.upcoming_fragment, container, false);
+
     }
 
     @Override
@@ -65,14 +72,26 @@ public class UpcomingFragment extends Fragment implements DataTransfer {
         upcomingTrips = new ArrayList<>();
         upcomingTrips.add(new TripData("first trip",
                 "Alex", "Cairo",
-                "13/06/2021", "5:45 PM", TripData.TripStatus.oneWay));
+                "13/06/2021", "5:45 PM", "oneWay", "noRepeat"));
         upcomingTrips.add(new TripData("return trip",
                 "Cairo", "Alex",
-                "20/06/2021", "9:45 PM", TripData.TripStatus.oneWay));
+                "20/06/2021", "9:45 PM", "oneWay", "noRepeat"));
 
-        myAdapter = new MyAdapter(this.getContext(), upcomingTrips,this);
+        Log.i(TAG, "onViewCreated: " + getId() + "/" + R.id.nav_upcoming);
+
+        myAdapter = new MyAdapter(this.getContext(), upcomingTrips, this, MyAdapter.Status.UPCOMING);
         recyclerView.setAdapter(myAdapter);
         tvDestination = view.findViewById(R.id.trip_row_endLbl);
+
+        btnAdd = view.findViewById(R.id.upcoming_addBtn);
+        btnAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int LAUNCH_SECOND_ACTIVITY = 1;
+                Intent i = new Intent(UpcomingFragment.this.getContext(), AddTripActivity.class);
+                startActivityForResult(i, LAUNCH_SECOND_ACTIVITY);
+            }
+        });
 
 
     }
@@ -96,5 +115,29 @@ public class UpcomingFragment extends Fragment implements DataTransfer {
     @Override
     public void startMap(String dest) {
         DisplayMap(dest);
+    }
+
+    public void addTrip(TripData data) {
+        upcomingTrips.add(data);
+        myAdapter.notifyItemInserted(myAdapter.getItemCount());
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1) {
+            if (resultCode == Activity.RESULT_OK) {
+                TripData result = (TripData) data.getSerializableExtra("result");
+                Toast.makeText(this.getContext(), "done", Toast.LENGTH_SHORT).show();
+                Log.i(TAG, "onActivityResult: done" + result.tripName);
+                upcomingTrips.add(result);
+                myAdapter.notifyItemInserted(upcomingTrips.size());
+//                upcomingFragment.addTrip(result);
+
+            }
+            if (resultCode == Activity.RESULT_CANCELED) {
+                //Write your code if there's no result
+            }
+        }
     }
 }

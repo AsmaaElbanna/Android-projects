@@ -3,6 +3,7 @@
     package="com.example.androidproject">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -11,20 +12,26 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AndroidProject">
-        <activity android:name=".navigation_drawer_activity.NavigationActivity"
-            android:theme="@style/Theme.AndroidProject.NoActionBar">
-            <!--intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+        <activity android:name=".DialogActivity"
+            android:theme="@style/Theme.AppCompat.Dialog.Alert"></activity>
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter-->
-        </activity>
-        <activity android:name=".SplashActivity">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
+
+        <activity android:name=".AddTripActivity" />
+        <activity
+            android:name=".navigation_drawer_activity.NavigationActivity"
+            android:theme="@style/Theme.AndroidProject.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            >
+        </activity>
+        <activity android:name=".SplashActivity">
+
         </activity>
         <activity android:name=".SignupActivity" />
         <activity android:name=".LoginActivity" />

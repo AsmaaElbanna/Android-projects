@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">AndroidProject</string>
-    <string name="title_activity_navigation">NavigationActivity</string>
+    <string name="google_maps_key">AIzaSyCVOvMSNN18_AJKQjfKfoWKxsYNF5GNxK0</string>
+
     <string name="login_btn">login</string>
     <string name="create_account">Create new account?</string>
     <string name="signUp_btn">sign up</string>
@@ -28,4 +29,31 @@
     <string name="notes">notes</string>
     <string name="action_edit">Edit</string>
     <string name="action_remove">Remove</string>
+    <string name="tripName">Trip Name: </string>
+    <string name="startPoint">Start Point: </string>
+    <string name="endPoint">End Point: </string>
+    <string name="addTrip">add trip</string>
+    <string name="fragTag">fragTag</string>
+    <string name="setTime">Set Time</string>
+    <string name="setDate">Set Date</string>
+    <string name="enter_email">Email</string>
+    <string name="password">Password</string>
+    <string name="channel_name">channel_name_mnem</string>
+    <string name="channel_description">channel_description_motaz</string>
+    <string name="txt">some txt</string>
+    <string name="flashLightOn">flashLightOn</string>
+    <string name="close">close</string>
+    <string name="appImage">appImage</string>
+
+    <string-array name="status">
+        <item>One Way</item>
+        <item>Round Trip</item>
+    </string-array>
+
+    <string-array name="data">
+        <item>No_Repeat</item>
+        <item>Daily</item>
+        <item>Weekly</item>
+        <item>Monthly</item>
+    </string-array>
 </resources>
