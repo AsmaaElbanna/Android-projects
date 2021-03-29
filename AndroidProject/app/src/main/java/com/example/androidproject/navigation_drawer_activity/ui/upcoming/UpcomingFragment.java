@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.androidproject.AddTripActivity;
+import com.example.androidproject.Addnote;
 import com.example.androidproject.R;
 import com.example.androidproject.navigation_drawer_activity.NavigationActivity;
 import com.example.androidproject.navigation_drawer_activity.model.TripData;
@@ -43,6 +44,9 @@ public class UpcomingFragment extends Fragment implements DataTransfer {
     public static int id;
     TextView tvDestination;
     FloatingActionButton btnAdd;
+    private final int REQUEST_CODE = 2;
+    public static final String POSITION = "position";
+    public static final String BUNDLE_NAME = "Data";
 
     public static UpcomingFragment newInstance() {
         return new UpcomingFragment();
@@ -120,6 +124,15 @@ public class UpcomingFragment extends Fragment implements DataTransfer {
     public void addTrip(TripData data) {
         upcomingTrips.add(data);
         myAdapter.notifyItemInserted(myAdapter.getItemCount());
+    }
+
+
+    @Override
+    public void saveNotes(int position) {
+        Intent intent = new Intent(this.getContext(), Addnote.class);
+        intent.putExtra(POSITION,position);
+        intent.putExtra("NOTES",upcomingTrips.get(position).notes);
+        startActivityForResult(intent,REQUEST_CODE);
     }
 
     @Override

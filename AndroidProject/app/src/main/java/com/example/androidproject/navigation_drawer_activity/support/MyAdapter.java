@@ -27,15 +27,15 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     private static final String TAG = "TAG";
     private final Context context;
     private ArrayList<TripData> trips;
-    private DataTransfer delegate ;
+    private DataTransfer delegate;
     private Status listStatus;
 
-    public enum Status{
+    public enum Status {
         UPCOMING,
         HISTORY
     }
 
-    public MyAdapter(Context _context, ArrayList<TripData> _trips, DataTransfer _delegate,Status _listStatus){
+    public MyAdapter(Context _context, ArrayList<TripData> _trips, DataTransfer _delegate, Status _listStatus) {
         context = _context;
         trips = _trips;
         delegate = _delegate;
@@ -46,7 +46,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View v = inflater.inflate(R.layout.recycler_trip_row,parent,false);
+        View v = inflater.inflate(R.layout.recycler_trip_row, parent, false);
         ViewHolder vh = new ViewHolder(v);
         return vh;
     }
@@ -59,24 +59,24 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         holder.startPoint.setText(trips.get(position).tripStartPoint);
         holder.endPoint.setText(trips.get(position).tripEndPoint);
 
-        holder.startBtn.setOnClickListener((event)->{
-            Log.i(TAG, "onBindViewHolder: START PRESSED : "+position );
+        holder.startBtn.setOnClickListener((event) -> {
+            Log.i(TAG, "onBindViewHolder: START PRESSED : " + position);
             delegate.startMap(trips.get(position).tripEndPoint);
         });
-        holder.notesBtn.setOnClickListener((event)->{
-            Log.i(TAG, "onBindViewHolder: NOTES PRESSED : "+position);
-            //notes Code.
+        holder.notesBtn.setOnClickListener((event) -> {
+            Log.i(TAG, "onBindViewHolder: NOTES PRESSED : " + position);
+            delegate.saveNotes(position);
         });
-        holder.menuBtn.setOnClickListener((event)->{
-            showPopup(holder.menuBtn,position);
+        holder.menuBtn.setOnClickListener((event) -> {
+            showPopup(holder.menuBtn, position);
         });
 
     }
 
-    public void showPopup(View v,int position) {
+    public void showPopup(View v, int position) {
         PopupMenu popup = new PopupMenu(context, v);
-        popup.setOnMenuItemClickListener((item)->{
-            switch (item.getItemId()){
+        popup.setOnMenuItemClickListener((item) -> {
+            switch (item.getItemId()) {
                 case R.id.action_edit:
                     Log.i(TAG, "showPopup: EDITING!!");
                     // editing action
@@ -87,7 +87,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
                     //dataSource.removeTrip(position);
                     trips.remove(position);
                     notifyItemRemoved(position);
-                    notifyItemRangeChanged(position,trips.size());
+                    notifyItemRangeChanged(position, trips.size());
                     return true;
 
                 default:
@@ -112,7 +112,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         return trips.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder{
+    public class ViewHolder extends RecyclerView.ViewHolder {
         public TextView nameLbl;
         public TextView dateLbl;
         public CardView cardView;
@@ -139,7 +139,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             menuBtn = itemView.findViewById(R.id.trip_row_optionsBtn);
             constraintLayout = itemView.findViewById(R.id.trip_row_layout);
 
-            switch (listStatus){
+            switch (listStatus) {
                 case HISTORY:
                     startBtn.setVisibility(View.GONE);
                     notesBtn.setVisibility(View.GONE);

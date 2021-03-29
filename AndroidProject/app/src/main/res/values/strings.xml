@@ -44,6 +44,12 @@
     <string name="flashLightOn">flashLightOn</string>
     <string name="close">close</string>
     <string name="appImage">appImage</string>
+    <string name="done_btn">done</string>
+    <string name="save_note_btn">save</string>
+    <string name="login_ways">Login with:</string>
+    <string name="google_btn">google</string>
+    <string name="facebook_btn">facebook</string>
+    <string name="delete_btn_note">delete</string>
 
     <string-array name="status">
         <item>One Way</item>
