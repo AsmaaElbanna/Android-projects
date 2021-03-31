@@ -22,6 +22,8 @@ import com.example.androidproject.navigation_drawer_activity.ui.upcoming.Upcomin
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.androidproject.navigation_drawer_activity.ui.upcoming.UpcomingFragment.POSITION;
+
 public class Addnote extends AppCompatActivity {
     private static final String TAG = "tag";
     RecyclerView recyclerView;
@@ -35,26 +37,31 @@ public class Addnote extends AppCompatActivity {
     NoteModel noteModel;
     private int tripId;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_addnote);
+        Intent intent = getIntent();
+        tripId = intent.getIntExtra("tripId",1);
         listOfNotes =new ArrayList<>();
         addNoteTxt =findViewById(R.id.note_edit_txt);
         recyclerView = findViewById(R.id.note_recyclerview);
         myNoteAdapter =new NoteAdapter(getBaseContext(),listOfNotes);
         recyclerView.setAdapter(myNoteAdapter);
+        noteModel = new NoteModel();
+        noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
 //          noteRepository = new NoteRepository(this);
-            noteRepository.getAllNotesById(tripId).observe(this,noteModels -> {
+
+// room
+
+            noteViewModel.getAllNotesById(tripId).observe(this,noteModels -> {
             listOfNotes = noteModels;
             myNoteAdapter =new NoteAdapter(getBaseContext(),listOfNotes);
             myNoteAdapter.notifyDataSetChanged();
             recyclerView.setAdapter(myNoteAdapter);
-
         });
 
-        Intent intent = getIntent();
-        tripId = intent.getIntExtra("tripId",1);
         saveBtn = findViewById(R.id.save_note_btn);
         doneBtn = findViewById(R.id.done_btn);
         saveBtn.setOnClickListener(new View.OnClickListener() {
@@ -62,6 +69,7 @@ public class Addnote extends AppCompatActivity {
             public void onClick(View v) {
                 String noteString = addNoteTxt.getText().toString().trim();
                 noteModel.setNote(noteString);
+                Log.i(TAG, "onClick: "+noteModel);
                // listOfNotes.add(noteModel);
               // listOfNotes.add(noteString);
              // myNoteAdapter.notifyDataSetChanged();
@@ -69,6 +77,7 @@ public class Addnote extends AppCompatActivity {
               noteModel.setNote(noteString);
               noteModel.setTripId(tripId);
               noteViewModel.insert(noteModel);
+
             }
         });
         doneBtn.setOnClickListener(new View.OnClickListener() {
@@ -84,7 +93,7 @@ public class Addnote extends AppCompatActivity {
             }
         });
         Intent caller = getIntent();
-        position = caller.getIntExtra(UpcomingFragment.POSITION,-1);
+        position = caller.getIntExtra(POSITION,-1);
 
 //        listOfNotes.addAll(caller.getStringArrayListExtra("NOTES"));
         Log.i(TAG, "onCreate: " + caller.getStringArrayListExtra("NOTES"));
