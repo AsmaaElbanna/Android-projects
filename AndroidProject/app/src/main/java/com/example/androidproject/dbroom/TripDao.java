@@ -1,31 +1,39 @@
 package com.example.androidproject.dbroom;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
+import androidx.room.Update;
 
 import java.util.List;
 
 @Dao
 public interface TripDao {
 
-    @Query("SELECT * FROM TripModel")
-    List<TripModel> getAll();
+    @Query("SELECT * FROM trips")
+    LiveData<List<TripModel>> getAllTrips();
 
-    @Query("SELECT * FROM TripModel WHERE tripId = (:userIdsTrip)")
-    List<TripModel> loadAllByIdsTrip(int userIdsTrip);
+    @Query("SELECT * FROM trips where status == 0  order by timestamp asc")
+    LiveData<List<TripModel>> getAllUpComingTrips();
 
-    @Query("SELECT * FROM TripModel WHERE user_id = (:userIdsUser)")
-    List<TripModel> loadAllByIdsUser(String userIdsUser);
-/*
-    @Query("SELECT * FROM TripModel WHERE first_name LIKE :first AND " +
-            "last_name LIKE :last LIMIT 1")
-    TripModel findByName(String first, String last);
-*/
-    @Insert
-    void insertAll(TripModel... trips);   //... refer to args method 0 or more
+    @Query("SELECT * FROM trips where status != 0 order by timestamp asc")
+    LiveData<List<TripModel>> getAllPastTrips();
+
+    @Update
+    void update(TripModel tripModel);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insert(TripModel... tripModels);
 
     @Delete
-    void delete(TripModel trip);
+    void delete(TripModel tripModel);
+
+    @Query("DELETE FROM trips")
+    void deleteAll();
+
+
+
 }

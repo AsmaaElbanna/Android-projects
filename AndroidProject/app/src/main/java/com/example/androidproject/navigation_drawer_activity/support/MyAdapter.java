@@ -18,15 +18,17 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.androidproject.R;
+import com.example.androidproject.dbroom.TripModel;
 import com.example.androidproject.navigation_drawer_activity.model.TripData;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
     private static final String TAG = "TAG";
     private final Context context;
-    private ArrayList<TripData> trips;
+    private List<TripModel> trips;
     private DataTransfer delegate;
     private Status listStatus;
 
@@ -35,7 +37,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         HISTORY
     }
 
-    public MyAdapter(Context _context, ArrayList<TripData> _trips, DataTransfer _delegate, Status _listStatus) {
+    public MyAdapter(Context _context, List<TripModel> _trips,
+                     DataTransfer _delegate, Status _listStatus) {
         context = _context;
         trips = _trips;
         delegate = _delegate;
@@ -53,15 +56,15 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.nameLbl.setText(trips.get(position).tripName);
-        holder.dateLbl.setText(trips.get(position).date);
-        holder.timeLbl.setText(trips.get(position).time);
-        holder.startPoint.setText(trips.get(position).tripStartPoint);
-        holder.endPoint.setText(trips.get(position).tripEndPoint);
+        holder.nameLbl.setText(trips.get(position).getName());
+        holder.dateLbl.setText(trips.get(position).getDate());
+        holder.timeLbl.setText(trips.get(position).getTime());
+        holder.startPoint.setText(trips.get(position).getStartPoint());
+        holder.endPoint.setText(trips.get(position).getEndPoint());
 
         holder.startBtn.setOnClickListener((event) -> {
             Log.i(TAG, "onBindViewHolder: START PRESSED : " + position);
-            delegate.startMap(trips.get(position).tripEndPoint);
+            delegate.startMap(trips.get(position).getEndPoint());
         });
         holder.notesBtn.setOnClickListener((event) -> {
             Log.i(TAG, "onBindViewHolder: NOTES PRESSED : " + position);
@@ -70,9 +73,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         holder.menuBtn.setOnClickListener((event) -> {
             showPopup(holder.menuBtn, position);
         });
-
     }
-
     public void showPopup(View v, int position) {
         PopupMenu popup = new PopupMenu(context, v);
         popup.setOnMenuItemClickListener((item) -> {
@@ -106,10 +107,15 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 //        notifyItemRemoved(newPosition);
 //        notifyItemRangeChanged(newPosition, trips.size());
 //    }
-
+    public void setTrips(List<TripModel> trips){
+        this.trips = trips;
+        notifyDataSetChanged();
+    }
     @Override
     public int getItemCount() {
-        return trips.size();
+        if (trips != null)
+            return trips.size();
+        else return 0;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

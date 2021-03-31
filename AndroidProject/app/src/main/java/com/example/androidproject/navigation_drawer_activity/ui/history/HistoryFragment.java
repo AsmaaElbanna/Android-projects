@@ -15,17 +15,20 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.androidproject.R;
+import com.example.androidproject.dbroom.TripModel;
+import com.example.androidproject.dbroom.TripViewModel;
 import com.example.androidproject.navigation_drawer_activity.model.TripData;
 import com.example.androidproject.navigation_drawer_activity.support.DataTransfer;
 import com.example.androidproject.navigation_drawer_activity.support.MyAdapter;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class HistoryFragment extends Fragment {
+public class HistoryFragment extends Fragment implements DataTransfer{
 
-    private HistoryViewModel mViewModel;
+    private TripViewModel mViewModel;
 
-    private ArrayList<TripData> historyTrips;
+    private List<TripModel> historyTrips;
     private RecyclerView recyclerView;
     private MyAdapter myAdapter;
 
@@ -42,7 +45,7 @@ public class HistoryFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mViewModel = new ViewModelProvider(this).get(HistoryViewModel.class);
+
         // TODO: Use the ViewModel
     }
 
@@ -52,7 +55,17 @@ public class HistoryFragment extends Fragment {
         recyclerView = view.findViewById(R.id.history_recycler);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this.getContext());
         recyclerView.setLayoutManager(layoutManager);
-        historyTrips = new ArrayList<>();
+       // historyTrips = new ArrayList<>();
+        mViewModel = new ViewModelProvider(getActivity()).get(TripViewModel.class);
+        myAdapter = new MyAdapter(this.getContext(), null, this, MyAdapter.Status.UPCOMING);
+        recyclerView.setAdapter(myAdapter);
+        //room
+        mViewModel = new ViewModelProvider(getActivity()).get(TripViewModel.class);
+        mViewModel.getAllPastTrips().observe(getViewLifecycleOwner(),tripModels -> {
+                    myAdapter.setTrips(tripModels);
+                });
+
+        /*
         historyTrips.add(new TripData("first trip",
                 "Alex", "Cairo",
                 "13/06/2021", "5:45 PM", "no_Repeat", "oneWay"));
@@ -60,7 +73,20 @@ public class HistoryFragment extends Fragment {
                 "Cairo", "Alex",
                 "20/06/2021", "9:45 PM", "no_Repeat", "oneWay"));
 
+         */
+
         myAdapter = new MyAdapter(this.getContext(), historyTrips,null, MyAdapter.Status.HISTORY);
         recyclerView.setAdapter(myAdapter);
+
+    }
+
+    @Override
+    public void startMap(String dest) {
+
+    }
+
+    @Override
+    public void saveNotes(int position) {
+
     }
 }

@@ -10,7 +10,9 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/note_recyclerview"
         android:layout_width="match_parent"
-        android:layout_height="400dp">
+        android:layout_height="400dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        >
 
     </androidx.recyclerview.widget.RecyclerView>
 

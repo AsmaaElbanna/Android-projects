@@ -9,22 +9,31 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.androidproject.dbroom.NoteModel;
+import com.example.androidproject.dbroom.NoteRepository;
+import com.example.androidproject.dbroom.NoteViewModel;
 import com.example.androidproject.navigation_drawer_activity.ui.upcoming.UpcomingFragment;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Addnote extends AppCompatActivity {
     private static final String TAG = "tag";
     RecyclerView recyclerView;
-    ArrayList<String> listOfNotes;
+    List<NoteModel> listOfNotes;
     EditText addNoteTxt;
     Button saveBtn,doneBtn;
     private int position;
-
     NoteAdapter myNoteAdapter;
+    NoteViewModel noteViewModel;
+    NoteRepository noteRepository;
+    NoteModel noteModel;
+    private int tripId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,40 +44,50 @@ public class Addnote extends AppCompatActivity {
         recyclerView = findViewById(R.id.note_recyclerview);
         myNoteAdapter =new NoteAdapter(getBaseContext(),listOfNotes);
         recyclerView.setAdapter(myNoteAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getBaseContext()));
+//          noteRepository = new NoteRepository(this);
+            noteRepository.getAllNotesById(tripId).observe(this,noteModels -> {
+            listOfNotes = noteModels;
+            myNoteAdapter =new NoteAdapter(getBaseContext(),listOfNotes);
+            myNoteAdapter.notifyDataSetChanged();
+            recyclerView.setAdapter(myNoteAdapter);
 
+        });
+
+        Intent intent = getIntent();
+        tripId = intent.getIntExtra("tripId",1);
         saveBtn = findViewById(R.id.save_note_btn);
         doneBtn = findViewById(R.id.done_btn);
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String noteString = addNoteTxt.getText().toString();
-                listOfNotes.add(noteString);
-                myNoteAdapter.notifyDataSetChanged();
-
+                String noteString = addNoteTxt.getText().toString().trim();
+                noteModel.setNote(noteString);
+               // listOfNotes.add(noteModel);
+              // listOfNotes.add(noteString);
+             // myNoteAdapter.notifyDataSetChanged();
+              NoteModel noteModel=new NoteModel();
+              noteModel.setNote(noteString);
+              noteModel.setTripId(tripId);
+              noteViewModel.insert(noteModel);
             }
         });
         doneBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent returnIntent = new Intent();
-                Bundle bundle =new Bundle();
-                bundle.putStringArrayList("NOTES",listOfNotes);
-                bundle.putInt(UpcomingFragment.POSITION,position);
-                returnIntent.putExtra(UpcomingFragment.BUNDLE_NAME,bundle);
-                setResult(Activity.RESULT_OK,returnIntent);
+//                Intent returnIntent = new Intent();
+//                Bundle bundle =new Bundle();
+//                bundle.putStringArrayList("NOTES",listOfNotes);
+//                bundle.putInt(UpcomingFragment.POSITION,position);
+//                returnIntent.putExtra(UpcomingFragment.BUNDLE_NAME,bundle);
+//                setResult(Activity.RESULT_OK,returnIntent);
                 finish();
             }
         });
-
         Intent caller = getIntent();
         position = caller.getIntExtra(UpcomingFragment.POSITION,-1);
 
 //        listOfNotes.addAll(caller.getStringArrayListExtra("NOTES"));
         Log.i(TAG, "onCreate: " + caller.getStringArrayListExtra("NOTES"));
-        myNoteAdapter.notifyDataSetChanged();
-
-
     }
 
     @Override

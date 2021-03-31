@@ -17,8 +17,6 @@ public class TripData implements Serializable {
     public TripData() {
         notes = new ArrayList<>();
     }
-
-
     public TripData(String tripName, String tripStartPoint, String tripEndPoint, String date, String time,
                     String tripStatus, String repeat) {
         this.tripName = tripName;
@@ -29,6 +27,4 @@ public class TripData implements Serializable {
         this.tripStatus = tripStatus;
         this.repeat = repeat;
     }
-
-
 }

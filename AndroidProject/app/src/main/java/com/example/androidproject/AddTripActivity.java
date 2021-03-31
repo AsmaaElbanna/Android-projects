@@ -20,10 +20,14 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 
+import com.example.androidproject.dbroom.NoteViewModel;
+import com.example.androidproject.dbroom.TripModel;
+import com.example.androidproject.dbroom.TripViewModel;
 import com.example.androidproject.navigation_drawer_activity.model.TripData;
 import com.example.androidproject.navigation_drawer_activity.support.UploadWorker;
 import com.google.android.gms.common.api.Status;
@@ -44,6 +48,9 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
     EditText etTripName;
     String sTripName, sStartPoint, sEndPoint, sDate, sTime, sData, sStatus;
     TextView tvDate, tvTime;
+    private TripModel tripModel;
+    private TripViewModel tripViewModel;
+    private Calendar calendar;
 
 
     PlaceAutocompleteFragment autocompleteFragmentSource;
@@ -54,6 +61,11 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_trip);
+        tripModel = new TripModel();
+         calendar = Calendar.getInstance();
+
+// part 1 room
+        tripViewModel = new ViewModelProvider(this).get(TripViewModel.class);
 
         //autocomplete
         autocompleteFragmentSource = (PlaceAutocompleteFragment)
@@ -65,6 +77,9 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
         Spinner spinnerRepeat = (Spinner) findViewById(R.id.spinnerRepeat);
         Spinner spinnerStatus = findViewById(R.id.spinnerStatus);
 
+        tripModel = new TripModel();
+        tripModel.setTripRepeatingType("No_Repeat");
+        tripModel.setType("One Way");
 
         setupAutoCompleteFragmentSource();
         setupAutoCompleteFragmentDest();
@@ -73,6 +88,8 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 sData = parent.getItemAtPosition(position).toString();
+                tripModel.setTripRepeatingType(sData);
+
             }
 
             @Override
@@ -85,6 +102,8 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 sStatus = parent.getItemAtPosition(position).toString();
+               tripModel.setType(sStatus);
+
             }
 
             @Override
@@ -92,14 +111,11 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
 
             }
         });
-
-
         btnDate = findViewById(R.id.btnDate);
         btnTime = findViewById(R.id.btnTime);
         tvDate = findViewById(R.id.tvDate);
         tvTime = findViewById(R.id.tvTime);
         etTripName = findViewById(R.id.etTripName);
-
         btnAdd = findViewById(R.id.btnAddTrip);
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -123,11 +139,22 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
                     TripData tripData = new TripData(sTripName, sStartPoint, sEndPoint, sDate, sTime, sStatus, sData);
                     returnIntent.putExtra("result", tripData);
                     setResult(Activity.RESULT_OK, returnIntent);
+
+
+
+                    //code insert data in room
+                    tripModel.setName(sTripName);
+                    tripModel.setStartPoint(sStartPoint);
+                    tripModel.setEndPoint(sEndPoint);
+                    tripModel.setDate(sDate);
+                    tripModel.setTime(sTime);
+                    tripModel.setTimestamp(calendar.getTimeInMillis());
+                    tripViewModel.insert(tripModel);
+
+
                     startWorkManager();
                     finish();
                 }
-
-
             }
         });
 
@@ -144,6 +171,7 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
             public void onClick(View v) {
                 DialogFragment timePicker = new TimeFragment();
                 timePicker.show(getSupportFragmentManager(), "time picker");
+
             }
         });
     }
@@ -156,6 +184,9 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
             public void onPlaceSelected(com.google.android.libraries.places.compat.Place place) {
                 autocompleteFragmentSource.setText(place.getName());
                 sStartPoint = place.getName().toString();
+                tripModel.setStartPointLatitude(place.getLatLng().latitude);
+                tripModel.setStartPointLongitude(place.getLatLng().longitude);
+
             }
 
             @Override
@@ -164,7 +195,6 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
             }
         });
     }
-
     private void setupAutoCompleteFragmentDest() {
 
         autocompleteFragmentDest.setOnPlaceSelectedListener(new PlaceSelectionListener() {
@@ -172,6 +202,8 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
             public void onPlaceSelected(com.google.android.libraries.places.compat.Place place) {
                 autocompleteFragmentDest.setText(place.getName());
                 sEndPoint = place.getName().toString();
+                tripModel.setEndPointLatitude(place.getLatLng().latitude);
+                tripModel.setEndPointLongitude(place.getLatLng().longitude);
             }
 
             @Override
@@ -183,7 +215,7 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
 
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-        Calendar calendar = Calendar.getInstance();
+
         calendar.set(Calendar.YEAR, year);
         calendar.set(Calendar.MONTH, month);
         calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
@@ -193,7 +225,13 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
 
     @Override
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-        tvTime.setText(hourOfDay + ":" + minute);
+        String time = hourOfDay + ":" + minute;
+        tvTime.setText(time);
+        calendar.set(Calendar.HOUR_OF_DAY,hourOfDay);
+        calendar.set(Calendar.MINUTE,minute);
+        tripModel.setTime(time);
+
+
     }
 
     private void startWorkManager(){
@@ -201,7 +239,6 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
                 .setInitialDelay(10, TimeUnit.SECONDS)
                 .addTag("mnem")
                 .build();
-
         WorkManager.getInstance(this).enqueue(tripRequest);
     }
 
