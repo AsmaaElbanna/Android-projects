@@ -20,11 +20,12 @@ import com.example.androidproject.dbroom.TripViewModel;
 import com.example.androidproject.navigation_drawer_activity.model.TripData;
 import com.example.androidproject.navigation_drawer_activity.support.DataTransfer;
 import com.example.androidproject.navigation_drawer_activity.support.MyAdapter;
+import com.example.androidproject.navigation_drawer_activity.support.OnRecyclerViewListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class HistoryFragment extends Fragment implements DataTransfer{
+public class HistoryFragment extends Fragment implements DataTransfer , OnRecyclerViewListener {
 
     private TripViewModel mViewModel;
 
@@ -57,7 +58,7 @@ public class HistoryFragment extends Fragment implements DataTransfer{
         recyclerView.setLayoutManager(layoutManager);
        // historyTrips = new ArrayList<>();
         mViewModel = new ViewModelProvider(getActivity()).get(TripViewModel.class);
-        myAdapter = new MyAdapter(this.getContext(), null, this, MyAdapter.Status.UPCOMING);
+        myAdapter = new MyAdapter(this.getContext(), null, this, MyAdapter.Status.UPCOMING,this);
         recyclerView.setAdapter(myAdapter);
         //room
         mViewModel = new ViewModelProvider(getActivity()).get(TripViewModel.class);
@@ -75,7 +76,7 @@ public class HistoryFragment extends Fragment implements DataTransfer{
 
          */
 
-        myAdapter = new MyAdapter(this.getContext(), historyTrips,null, MyAdapter.Status.HISTORY);
+        myAdapter = new MyAdapter(this.getContext(), historyTrips,null, MyAdapter.Status.HISTORY,this);
         recyclerView.setAdapter(myAdapter);
 
     }
@@ -87,6 +88,11 @@ public class HistoryFragment extends Fragment implements DataTransfer{
 
     @Override
     public void saveNotes(int position) {
+
+    }
+
+    @Override
+    public void onDeleteItem(int position) {
 
     }
 }

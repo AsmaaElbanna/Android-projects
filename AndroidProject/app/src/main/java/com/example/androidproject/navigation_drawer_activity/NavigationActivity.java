@@ -113,9 +113,7 @@ public class NavigationActivity extends AppCompatActivity {
 
         tripViewModel = new ViewModelProvider(this).get(TripViewModel.class);
 
-        tripViewModel.getAllTrips().observe(this,tripModels -> {
 
-        });
     }
 
 //    @Override
@@ -135,9 +133,12 @@ public class NavigationActivity extends AppCompatActivity {
     public void clickedOption(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.nav_sync:
-                tripModels = tripDao.getAllTrips().getValue();
-                Toast.makeText(this, "add to firebase", Toast.LENGTH_SHORT).show();
-                syncDataWithFirebaseDatabase(tripModels);
+
+                tripViewModel.getAllTrips().observe(this,tripModels -> {
+                    Toast.makeText(this, "add to firebase", Toast.LENGTH_SHORT).show();
+                    syncDataWithFirebaseDatabase(tripModels);
+                });
+
                 drawer.closeDrawers();
                 break;
 
@@ -189,6 +190,7 @@ public class NavigationActivity extends AppCompatActivity {
     void syncDataWithFirebaseDatabase(final List<TripModel> tripList) {
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference reference = firebaseDatabase.getReference();
+        reference.child("trips").removeValue();
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         for (int indx = 0; indx < tripList.size(); ++indx) {
             TripModel tripModel = tripList.get(indx);

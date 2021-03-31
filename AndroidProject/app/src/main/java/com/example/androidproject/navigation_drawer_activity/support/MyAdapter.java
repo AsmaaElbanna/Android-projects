@@ -15,10 +15,13 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.androidproject.R;
 import com.example.androidproject.dbroom.TripModel;
+import com.example.androidproject.dbroom.TripViewModel;
 import com.example.androidproject.navigation_drawer_activity.model.TripData;
 
 import java.util.ArrayList;
@@ -31,6 +34,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     private List<TripModel> trips;
     private DataTransfer delegate;
     private Status listStatus;
+    TripViewModel tripViewModel;
+    OnRecyclerViewListener onRecyclerViewListener;
 
     public enum Status {
         UPCOMING,
@@ -38,11 +43,12 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     }
 
     public MyAdapter(Context _context, List<TripModel> _trips,
-                     DataTransfer _delegate, Status _listStatus) {
+                     DataTransfer _delegate, Status _listStatus, OnRecyclerViewListener onRecyclerViewListener) {
         context = _context;
         trips = _trips;
         delegate = _delegate;
         listStatus = _listStatus;
+        this.onRecyclerViewListener = onRecyclerViewListener;
     }
 
     @NonNull
@@ -74,6 +80,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             showPopup(holder.menuBtn, position);
         });
     }
+
     public void showPopup(View v, int position) {
         PopupMenu popup = new PopupMenu(context, v);
         popup.setOnMenuItemClickListener((item) -> {
@@ -86,6 +93,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
                 case R.id.action_remove:
                     Log.i(TAG, "showPopup: DELETING !!");
                     //dataSource.removeTrip(position);
+                    onRecyclerViewListener.onDeleteItem(position);
                     trips.remove(position);
                     notifyItemRemoved(position);
                     notifyItemRangeChanged(position, trips.size());
@@ -101,16 +109,17 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     }
 
 
-//    private void removeItem(int position,ViewHolder holder) {
+    //    private void removeItem(int position,ViewHolder holder) {
 //        int newPosition = holder.getAdapterPosition();
 //        trips.remove(trips.get(position));
 //        notifyItemRemoved(newPosition);
 //        notifyItemRangeChanged(newPosition, trips.size());
 //    }
-    public void setTrips(List<TripModel> trips){
+    public void setTrips(List<TripModel> trips) {
         this.trips = trips;
         notifyDataSetChanged();
     }
+
     @Override
     public int getItemCount() {
         if (trips != null)

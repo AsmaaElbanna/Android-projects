@@ -35,13 +35,14 @@ import com.example.androidproject.navigation_drawer_activity.NavigationActivity;
 import com.example.androidproject.navigation_drawer_activity.model.TripData;
 import com.example.androidproject.navigation_drawer_activity.support.DataTransfer;
 import com.example.androidproject.navigation_drawer_activity.support.MyAdapter;
+import com.example.androidproject.navigation_drawer_activity.support.OnRecyclerViewListener;
 import com.example.androidproject.navigation_drawer_activity.ui.map.FloatWidgetService;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class UpcomingFragment extends Fragment implements DataTransfer {
+public class UpcomingFragment extends Fragment implements DataTransfer , OnRecyclerViewListener {
 
     private TripViewModel mViewModel;
     private final String TAG = "tag";
@@ -54,6 +55,7 @@ public class UpcomingFragment extends Fragment implements DataTransfer {
     private final int REQUEST_CODE = 2;
     public static final String POSITION = "position";
     public static final String BUNDLE_NAME = "Data";
+
 
 
     public static UpcomingFragment newInstance() {
@@ -86,11 +88,11 @@ public class UpcomingFragment extends Fragment implements DataTransfer {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this.getContext());
         recyclerView.setLayoutManager(layoutManager);
 
-        myAdapter = new MyAdapter(this.getContext(), null, this, MyAdapter.Status.UPCOMING);
+        myAdapter = new MyAdapter(this.getContext(), null, this, MyAdapter.Status.UPCOMING ,this);
         recyclerView.setAdapter(myAdapter);
         //room
         mViewModel = new ViewModelProvider(getActivity()).get(TripViewModel.class);
-        mViewModel.getAllUpcomingTrips().observe(getViewLifecycleOwner(),tripModels -> {
+        mViewModel.getAllUpcomingTrips().observe(getViewLifecycleOwner(), tripModels -> {
             myAdapter.setTrips(tripModels);
 
             // 31-3
@@ -108,12 +110,13 @@ public class UpcomingFragment extends Fragment implements DataTransfer {
             public void onClick(View v) {
                 int LAUNCH_SECOND_ACTIVITY = 1;
                 Intent i = new Intent(UpcomingFragment.this.getContext(), AddTripActivity.class);
-               // startActivityForResult(i, LAUNCH_SECOND_ACTIVITY);
+                // startActivityForResult(i, LAUNCH_SECOND_ACTIVITY);
                 startActivity(i);
 
             }
         });
     }
+
     private void DisplayMap(String destination) {
         try {
             Uri uri = Uri.parse("https://www.google.co.in/maps/dir//" + destination);
@@ -143,17 +146,22 @@ public class UpcomingFragment extends Fragment implements DataTransfer {
         }
     }
 
-//    public void addTrip(TripData data) {
+    //    public void addTrip(TripData data) {
 //        upcomingTrips.add(data);
 //        myAdapter.notifyItemInserted(myAdapter.getItemCount());
 //    }
     @Override
     public void saveNotes(int position) {
         Intent intent = new Intent(this.getContext(), Addnote.class);
-        intent.putExtra(POSITION,position);
-        intent.putExtra("tripId",upcomingTrips.get(position).getId());
-        Log.i(TAG, "saveNotes: "+upcomingTrips.size());
-         startActivity(intent);
+        intent.putExtra(POSITION, position);
+        intent.putExtra("tripId", upcomingTrips.get(position).getId());
+        Log.i(TAG, "saveNotes: " + upcomingTrips.size());
+        startActivity(intent);
+    }
+
+    @Override
+    public void onDeleteItem(int position) {
+        mViewModel.delete(upcomingTrips.get(position));
     }
 //    @Override
 //    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

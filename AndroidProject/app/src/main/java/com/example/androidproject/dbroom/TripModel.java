@@ -13,6 +13,17 @@ public class TripModel {
     @ColumnInfo
     private String name;
 
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    @ColumnInfo
+    private String userId;
+
     @ColumnInfo(name = "start_point")
     private String startPoint;
 
@@ -49,7 +60,7 @@ public class TripModel {
     @ColumnInfo(name = "end_point_longitude")
     private double endPointLongitude;
 
-    public TripModel(){
+    public TripModel() {
 
     }
 

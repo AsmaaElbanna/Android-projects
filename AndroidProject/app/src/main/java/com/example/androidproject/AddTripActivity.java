@@ -33,6 +33,7 @@ import com.example.androidproject.navigation_drawer_activity.support.UploadWorke
 import com.google.android.gms.common.api.Status;
 import com.google.android.libraries.places.compat.ui.PlaceAutocompleteFragment;
 import com.google.android.libraries.places.compat.ui.PlaceSelectionListener;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.sql.SQLData;
 import java.text.DateFormat;
@@ -149,6 +150,7 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
                     tripModel.setDate(sDate);
                     tripModel.setTime(sTime);
                     tripModel.setTimestamp(calendar.getTimeInMillis());
+                    tripModel.setUserId(FirebaseAuth.getInstance().getCurrentUser().getUid());
                     tripViewModel.insert(tripModel);
 
 
