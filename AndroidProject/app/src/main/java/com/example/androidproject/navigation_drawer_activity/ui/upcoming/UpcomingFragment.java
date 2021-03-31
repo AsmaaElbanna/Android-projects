@@ -7,6 +7,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.nfc.Tag;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -15,6 +16,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +35,7 @@ import com.example.androidproject.navigation_drawer_activity.NavigationActivity;
 import com.example.androidproject.navigation_drawer_activity.model.TripData;
 import com.example.androidproject.navigation_drawer_activity.support.DataTransfer;
 import com.example.androidproject.navigation_drawer_activity.support.MyAdapter;
+import com.example.androidproject.navigation_drawer_activity.ui.map.FloatWidgetService;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -64,7 +67,9 @@ public class UpcomingFragment extends Fragment implements DataTransfer {
         id = getId();
         upcomingTrips = new ArrayList<>();
         return inflater.inflate(R.layout.upcoming_fragment, container, false);
+
     }
+
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -73,6 +78,7 @@ public class UpcomingFragment extends Fragment implements DataTransfer {
 
         // TODO: Use the ViewModel
     }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -126,6 +132,15 @@ public class UpcomingFragment extends Fragment implements DataTransfer {
     @Override
     public void startMap(String dest) {
         DisplayMap(dest);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(getContext())) {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + getActivity().getPackageName()));
+            startActivityForResult(intent, 106);
+        } else {
+            Intent startIntent = new Intent(getContext(), FloatWidgetService.class);
+            startIntent.putExtra("notes", "mnem");
+            getActivity().startService(startIntent);
+        }
     }
 
 //    public void addTrip(TripData data) {

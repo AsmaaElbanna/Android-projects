@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout4"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:gravity="center"
@@ -7,25 +10,34 @@
 
     <ImageView
         android:id="@+id/notifiation_image"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="30"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginStart="8dp"
         android:contentDescription="@string/appImage"
-        android:src="@drawable/ic_menu_camera" />
+        android:src="@drawable/ic_menu_camera"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/appName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="50"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="8dp"
         android:gravity="center"
         android:text="@string/flashLightOn"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        app:layout_constraintBottom_toBottomOf="@+id/notifiation_image"
+        app:layout_constraintEnd_toStartOf="@+id/closeOnFlash"
+        app:layout_constraintStart_toEndOf="@+id/notifiation_image"
+        app:layout_constraintTop_toTopOf="@+id/notifiation_image" />
 
     <Button
         android:id="@+id/closeOnFlash"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="20"
-        android:text="@string/close" />
-</LinearLayout>
+        android:layout_height="50dp"
+        android:layout_marginEnd="16dp"
+        android:text="@string/close"
+        app:layout_constraintBottom_toBottomOf="@+id/appName"
+        app:layout_constraintEnd_toEndOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

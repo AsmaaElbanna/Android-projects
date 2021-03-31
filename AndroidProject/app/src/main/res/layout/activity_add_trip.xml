@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/back2"
     app:layout_constraintCircleRadius="20dp"
     tools:context=".AddTripActivity">
 
@@ -32,44 +33,40 @@
         app:layout_constraintStart_toEndOf="@+id/tvTripName"
         app:layout_constraintTop_toTopOf="@+id/tvTripName" />
 
-    <LinearLayout
-        android:id="@+id/linearLayout"
+    <TextView
+        android:id="@+id/tvStartPoint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/startPoint"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toStartOf="@+id/tvTripName"
+        app:layout_constraintTop_toBottomOf="@+id/tvTripName" />
+
+    <fragment
+        android:id="@+id/source"
+        android:name="com.google.android.libraries.places.compat.ui.PlaceAutocompleteFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="24dp"
-        android:background="@color/white"
-        android:orientation="vertical"
-        android:paddingStart="10dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvTripName">
-
-        <TextView
-            android:id="@+id/tvStartPoint"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/startPoint"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
-
-        <fragment
-            android:id="@+id/source"
-            android:name="com.google.android.libraries.places.compat.ui.PlaceAutocompleteFragment"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
+        app:layout_constraintTop_toBottomOf="@+id/tvStartPoint" />
 
     <TextView
         android:id="@+id/tvEndPoint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="24dp"
         android:text="@string/endPoint"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textColor="@color/white"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/source" />
 
     <fragment
         android:id="@+id/dest"
@@ -114,6 +111,7 @@
         android:layout_marginTop="70dp"
         android:layout_marginEnd="32dp"
         android:text="@string/addTrip"
+        app:backgroundTint="@color/fui_bgAnonymous"
         app:cornerRadius="30dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -153,6 +151,7 @@
         android:layout_marginTop="16dp"
         android:text="@string/setDate"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textColor="@color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnDate" />
 
@@ -163,6 +162,7 @@
         android:layout_marginEnd="64dp"
         android:text="@string/setTime"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textColor="@color/black"
         app:layout_constraintBottom_toBottomOf="@+id/tvDate"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -182,6 +182,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="48dp"
         android:layout_marginEnd="16dp"
+        android:dropDownSelector="@color/purple_700"
         android:entries="@array/status"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvTime" />

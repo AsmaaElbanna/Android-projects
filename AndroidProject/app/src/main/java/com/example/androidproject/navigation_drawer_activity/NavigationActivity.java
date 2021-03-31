@@ -2,6 +2,7 @@ package com.example.androidproject.navigation_drawer_activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -10,6 +11,10 @@ import android.widget.Toast;
 
 import com.example.androidproject.AddTripActivity;
 import com.example.androidproject.R;
+import com.example.androidproject.dbroom.AppDatabase;
+import com.example.androidproject.dbroom.TripDao;
+import com.example.androidproject.dbroom.TripModel;
+import com.example.androidproject.dbroom.TripViewModel;
 import com.example.androidproject.navigation_drawer_activity.model.TripData;
 import com.example.androidproject.navigation_drawer_activity.ui.upcoming.UpcomingFragment;
 import com.firebase.ui.auth.AuthUI;
@@ -18,9 +23,14 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
@@ -30,12 +40,21 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class NavigationActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
     private DrawerLayout drawer;
     private final String TAG = "tag";
     private UpcomingFragment upcomingFragment;
+    boolean readyToSync;
+    AppDatabase appDatabase;
+    TripDao tripDao;
+    private TripViewModel tripViewModel;
+    private List<TripModel> tripModels;
+
 
 
     @Override
@@ -81,7 +100,6 @@ public class NavigationActivity extends AppCompatActivity {
         });
 
 
-
         Log.i(TAG, "onCreate: " + UpcomingFragment.id);
 //        upcomingFragment = (UpcomingFragment) manager.findFragmentByTag(UpcomingFragment.tag);
 //        if (upcomingFragment != null){
@@ -89,6 +107,15 @@ public class NavigationActivity extends AppCompatActivity {
 //        } else
 //            Log.i(TAG, "onCreate: failed");
 
+
+        appDatabase = AppDatabase.getDatabase(getBaseContext());
+        tripDao = appDatabase.tripDao();
+
+        tripViewModel = new ViewModelProvider(this).get(TripViewModel.class);
+
+        tripViewModel.getAllTrips().observe(this,tripModels -> {
+
+        });
     }
 
 //    @Override
@@ -108,7 +135,9 @@ public class NavigationActivity extends AppCompatActivity {
     public void clickedOption(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.nav_sync:
-                // Sync code
+                tripModels = tripDao.getAllTrips().getValue();
+                Toast.makeText(this, "add to firebase", Toast.LENGTH_SHORT).show();
+                syncDataWithFirebaseDatabase(tripModels);
                 drawer.closeDrawers();
                 break;
 
@@ -151,6 +180,37 @@ public class NavigationActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        if (readyToSync = true) {
 
+        }
+    }
+
+
+    void syncDataWithFirebaseDatabase(final List<TripModel> tripList) {
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+        DatabaseReference reference = firebaseDatabase.getReference();
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        for (int indx = 0; indx < tripList.size(); ++indx) {
+            TripModel tripModel = tripList.get(indx);
+            reference.child("trips").child(uid).push().setValue(tripModel).addOnCompleteListener(task -> {
+                Toast.makeText(this, "done", Toast.LENGTH_SHORT).show();
+            });
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    List<TripModel> fetchDataWithFirebaseDatabase() {
+        List<TripModel> tripList = new ArrayList<>();
+        FirebaseDatabase.getInstance().getReference().child("trips").get().addOnCompleteListener(task -> {
+            DataSnapshot result = task.getResult();
+            Iterable<DataSnapshot> children = result.getChildren();
+            children.forEach(dataSnapshot -> {
+                TripModel value = dataSnapshot.getValue(TripModel.class);
+                tripList.add(value);
+            });
+        });
+
+        return tripList;
     }
 }
+
