@@ -240,7 +240,7 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
 
     private void startWorkManager(){
         WorkRequest tripRequest = new OneTimeWorkRequest.Builder(UploadWorker.class)
-                .setInitialDelay(10, TimeUnit.SECONDS)
+                .setInitialDelay(60, TimeUnit.SECONDS)
                 .addTag("mnem")
                 .build();
         WorkManager.getInstance(this).enqueue(tripRequest);

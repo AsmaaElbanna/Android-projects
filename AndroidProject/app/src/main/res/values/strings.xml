@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">AndroidProject</string>
+    <string name="app_name">Tripo</string>
     <string name="google_maps_key">AIzaSyCVOvMSNN18_AJKQjfKfoWKxsYNF5GNxK0</string>
 
     <string name="login_btn">login</string>
@@ -47,7 +47,7 @@
     <string name="done_btn">done</string>
     <string name="save_note_btn">save</string>
     <string name="login_ways">Login with:</string>
-    <string name="google_btn">google</string>
+    <string name="google_btn">sign in with google</string>
     <string name="facebook_btn">facebook</string>
     <string name="delete_btn_note">delete</string>
     <string name="cancel">cancel</string>

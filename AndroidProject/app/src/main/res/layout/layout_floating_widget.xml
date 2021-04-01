@@ -22,7 +22,7 @@
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:layout_marginTop="8dp"
-            android:src="@drawable/clock" />
+            android:src="@drawable/logo" />
 
         <ImageView
             android:id="@+id/buttonClose"
@@ -47,7 +47,7 @@
             android:id="@+id/buttonSimplifiedCodingExpanded"
             android:layout_width="80dp"
             android:layout_height="80dp"
-            android:src="@drawable/clock"
+            android:src="@drawable/logo"
             tools:ignore="ContentDescription" />
 
         <LinearLayout

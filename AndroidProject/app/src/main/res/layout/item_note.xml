@@ -6,13 +6,14 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     app:cardBackgroundColor="#BDBDBD"
+    app:cardCornerRadius="20dp"
     app:contentPaddingBottom="1dp">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#FFF59D">
+        android:background="#EAFAF1">
 
         <TextView
             android:id="@+id/note_txt"
