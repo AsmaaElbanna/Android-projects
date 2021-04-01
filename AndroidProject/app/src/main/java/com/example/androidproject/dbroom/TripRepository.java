@@ -22,8 +22,8 @@ public class TripRepository {
         return allTrips;
     }
 
-    public LiveData<List<TripModel>> getAllUpcomingTrips() {
-        upComingTrips = tripDao.getAllUpComingTrips();
+    public LiveData<List<TripModel>> getAllUpcomingTrips(String email) {
+        upComingTrips = tripDao.getAllUpComingTrips(email);
         return upComingTrips;
     }
 

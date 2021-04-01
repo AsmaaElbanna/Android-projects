@@ -11,10 +11,12 @@ import java.util.List;
 public class UpcomingViewModel extends ViewModel {
     // TODO: Implement the ViewModel
 
-    TripRepository tripRepository ;
+//    TripRepository tripRepository ;
+//
+//    public LiveData<List<TripModel>> getUpcomingTrips(){
+//
+//        return tripRepository.getAllUpcomingTrips();
+//
+//    }
 
-    public LiveData<List<TripModel>> getUpcomingTrips(){
-        return tripRepository.getAllUpcomingTrips();
-
-    }
 }

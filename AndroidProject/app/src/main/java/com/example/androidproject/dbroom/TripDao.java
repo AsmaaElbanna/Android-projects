@@ -15,9 +15,14 @@ public interface TripDao {
 
     @Query("SELECT * FROM trips")
     LiveData<List<TripModel>> getAllTrips();
-
+/*
     @Query("SELECT * FROM trips where status == 0  order by timestamp asc")
     LiveData<List<TripModel>> getAllUpComingTrips();
+*/
+
+    @Query("SELECT * FROM trips where status = 0  and email = :useremail order by timestamp asc ")
+    LiveData<List<TripModel>> getAllUpComingTrips(String useremail);
+
 
     @Query("SELECT * FROM trips where status != 0 order by timestamp asc")
     LiveData<List<TripModel>> getAllPastTrips();
@@ -33,7 +38,5 @@ public interface TripDao {
 
     @Query("DELETE FROM trips")
     void deleteAll();
-
-
 
 }

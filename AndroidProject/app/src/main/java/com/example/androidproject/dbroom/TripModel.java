@@ -13,13 +13,8 @@ public class TripModel {
     @ColumnInfo
     private String name;
 
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
+    @ColumnInfo
+    private String email;
 
     @ColumnInfo
     private String userId;
@@ -62,6 +57,14 @@ public class TripModel {
 
     public TripModel() {
 
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public int getId() {
@@ -176,4 +179,11 @@ public class TripModel {
         this.endPointLongitude = endPointLongitude;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }

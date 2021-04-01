@@ -150,7 +150,9 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
                     tripModel.setDate(sDate);
                     tripModel.setTime(sTime);
                     tripModel.setTimestamp(calendar.getTimeInMillis());
-                    tripModel.setUserId(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                   tripModel.setUserId(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                   tripModel.setEmail(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+                 // String t= FirebaseAuth.getInstance().getCurrentUser().getEmail();
                     tripViewModel.insert(tripModel);
 
 
