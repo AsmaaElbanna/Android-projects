@@ -110,12 +110,12 @@ public class TripWorker extends Worker {
                 .setContentIntent(appIntent);
         builder.setStyle(new NotificationCompat.DecoratedCustomViewStyle());
 
-        RemoteViews contentView = new RemoteViews(getApplicationContext().getPackageName(), R.layout.notification_layout);
+//        RemoteViews contentView = new RemoteViews(getApplicationContext().getPackageName(), R.layout.notification_layout);
         RemoteViews notificationBig = new RemoteViews(getApplicationContext().getPackageName(),
                 R.layout.notification_big);
         notificationBig.setOnClickPendingIntent(R.id.notification_cancel_btn,cancelIntent);
         notificationBig.setOnClickPendingIntent(R.id.notification_start_btn, startIntent);
-        builder.setCustomContentView(notificationView);
+//        builder.setCustomContentView(notificationView);
         builder.setCustomBigContentView(notificationBig);
         builder.setAutoCancel(true);
         //registerNewReciever();
