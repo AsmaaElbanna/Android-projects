@@ -42,6 +42,7 @@ import com.example.androidproject.navigation_drawer_activity.support.MyAdapter;
 import com.example.androidproject.navigation_drawer_activity.support.OnRecyclerViewListener;
 import com.example.androidproject.navigation_drawer_activity.ui.map.FloatWidgetService;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,8 +60,6 @@ public class UpcomingFragment extends Fragment implements DataTransfer , OnRecyc
     private final int REQUEST_CODE = 2;
     public static final String POSITION = "position";
     public static final String BUNDLE_NAME = "Data";
-
-
 
     public static UpcomingFragment newInstance() {
         return new UpcomingFragment();
@@ -96,16 +95,14 @@ public class UpcomingFragment extends Fragment implements DataTransfer , OnRecyc
         recyclerView.setAdapter(myAdapter);
         //room
         mViewModel = new ViewModelProvider(getActivity()).get(TripViewModel.class);
-        mViewModel.getAllUpcomingTrips().observe(getViewLifecycleOwner(), tripModels -> {
+        String email= FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        mViewModel.getAllUpcomingTrips(email).observe(getViewLifecycleOwner(), tripModels -> {
             myAdapter.setTrips(tripModels);
 
             // 31-3
             upcomingTrips = tripModels;
-
         });
-
         Log.i(TAG, "onViewCreated: " + getId() + "/" + R.id.nav_upcoming);
-
         tvDestination = view.findViewById(R.id.trip_row_endLbl);
 
         btnAdd = view.findViewById(R.id.upcoming_addBtn);
@@ -116,7 +113,6 @@ public class UpcomingFragment extends Fragment implements DataTransfer , OnRecyc
                 Intent i = new Intent(UpcomingFragment.this.getContext(), AddTripActivity.class);
                 // startActivityForResult(i, LAUNCH_SECOND_ACTIVITY);
                 startActivity(i);
-
             }
         });
     }
@@ -135,7 +131,6 @@ public class UpcomingFragment extends Fragment implements DataTransfer , OnRecyc
             startActivity(intent);
         }
     }
-
     @Override
     public void startMap(String dest,int id) {
         DisplayMap(dest);
@@ -197,4 +192,5 @@ public class UpcomingFragment extends Fragment implements DataTransfer , OnRecyc
 //            }
 //        }
 //    }
+
 }

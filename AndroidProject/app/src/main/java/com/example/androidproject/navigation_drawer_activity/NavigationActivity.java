@@ -30,6 +30,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.view.GravityCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
@@ -54,8 +55,7 @@ public class NavigationActivity extends AppCompatActivity {
     TripDao tripDao;
     private TripViewModel tripViewModel;
     private List<TripModel> tripModels;
-
-
+    boolean isHomeFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +63,7 @@ public class NavigationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_navigation);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        isHomeFragment=true;
 //        FloatingActionButton fab = findViewById(R.id.upcoming_addBtn);
 //        fab.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -112,8 +113,6 @@ public class NavigationActivity extends AppCompatActivity {
         tripDao = appDatabase.tripDao();
 
         tripViewModel = new ViewModelProvider(this).get(TripViewModel.class);
-
-
     }
 
 //    @Override
@@ -185,8 +184,6 @@ public class NavigationActivity extends AppCompatActivity {
 
         }
     }
-
-
     void syncDataWithFirebaseDatabase(final List<TripModel> tripList) {
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference reference = firebaseDatabase.getReference();
@@ -199,7 +196,6 @@ public class NavigationActivity extends AppCompatActivity {
             });
         }
     }
-
     @RequiresApi(api = Build.VERSION_CODES.N)
     List<TripModel> fetchDataWithFirebaseDatabase() {
         List<TripModel> tripList = new ArrayList<>();
@@ -213,6 +209,21 @@ public class NavigationActivity extends AppCompatActivity {
         });
 
         return tripList;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        DrawerLayout drawerLayout =(DrawerLayout) findViewById(R.id.drawer_layout);
+        if(drawerLayout.isDrawerOpen(GravityCompat.START)){
+            drawerLayout.closeDrawer(GravityCompat.START);
+        }else{
+            if(isHomeFragment){
+                finishAffinity();
+            }else{
+                isHomeFragment=true;
+            }
+        }
     }
 }
 

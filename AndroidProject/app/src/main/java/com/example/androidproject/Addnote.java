@@ -51,6 +51,7 @@ public class Addnote extends AppCompatActivity {
         myNoteAdapter.changeData(listOfNotes);
         recyclerView.setAdapter(myNoteAdapter);
         noteModel = new NoteModel();
+
         noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
 //          noteRepository = new NoteRepository(this);
 

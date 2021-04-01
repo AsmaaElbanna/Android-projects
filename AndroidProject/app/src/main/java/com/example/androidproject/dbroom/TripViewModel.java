@@ -20,8 +20,8 @@ public class TripViewModel extends AndroidViewModel {
         return tripRepository.getAllTrips();
     }
 
-    public LiveData<List<TripModel>> getAllUpcomingTrips() {
-        return tripRepository.getAllUpcomingTrips();
+    public LiveData<List<TripModel>> getAllUpcomingTrips(String email) {
+        return tripRepository.getAllUpcomingTrips(email);
     }
 
     public LiveData<List<TripModel>> getAllPastTrips() {
