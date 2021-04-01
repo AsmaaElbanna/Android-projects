@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.IBinder;
+import android.provider.ContactsContract;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -14,9 +15,14 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.androidproject.R;
 
+import com.example.androidproject.NoteAdapter;
+import com.example.androidproject.R;
+import com.example.androidproject.dbroom.NoteModel;
+
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class FloatWidgetService extends Service implements View.OnClickListener {
 
@@ -24,9 +30,11 @@ public class FloatWidgetService extends Service implements View.OnClickListener 
     private View mFloatingWidget;
     private View collapsedView;
     private View expandedView;
+    NoteAdapter adapter;
     RecyclerView notesRecyclerView;
-    TextView textTwo;
+
     private String noteTwo = "text";
+    private List<NoteModel> noteList;
     public static final String BROADCAST_ACTION = "magicbox";
     private static final int MAX_CLICK_DURATION = 200;
     private long startClickTime;
@@ -42,10 +50,12 @@ public class FloatWidgetService extends Service implements View.OnClickListener 
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        noteList = new ArrayList<>();
+        noteList.clear();
+        noteList = (ArrayList<NoteModel>) intent.getSerializableExtra("notes");
 
-
-        noteTwo = intent.getExtras().getString("notes");
-        textTwo.setText(noteTwo);
+        adapter.changeData(noteList);
+        notesRecyclerView.setAdapter(adapter);
         return START_STICKY;
 
     }
@@ -83,7 +93,8 @@ public class FloatWidgetService extends Service implements View.OnClickListener 
         // textTwo = mFloatingWidget.findViewById(R.id.note_two);
 
 
-        textTwo = mFloatingWidget.findViewById(R.id.textView3);
+        notesRecyclerView = mFloatingWidget.findViewById(R.id.notesRecyclerView);
+        adapter = new NoteAdapter(getApplicationContext());
 
 
         mFloatingWidget.findViewById(R.id.layoutCollapsed).setOnTouchListener(new View.OnTouchListener() {

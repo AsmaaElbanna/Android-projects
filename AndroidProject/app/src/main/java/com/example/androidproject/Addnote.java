@@ -47,7 +47,8 @@ public class Addnote extends AppCompatActivity {
         listOfNotes =new ArrayList<>();
         addNoteTxt =findViewById(R.id.note_edit_txt);
         recyclerView = findViewById(R.id.note_recyclerview);
-        myNoteAdapter =new NoteAdapter(getBaseContext(),listOfNotes);
+        myNoteAdapter =new NoteAdapter(getBaseContext());
+        myNoteAdapter.changeData(listOfNotes);
         recyclerView.setAdapter(myNoteAdapter);
         noteModel = new NoteModel();
         noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
@@ -57,7 +58,8 @@ public class Addnote extends AppCompatActivity {
 
             noteViewModel.getAllNotesById(tripId).observe(this,noteModels -> {
             listOfNotes = noteModels;
-            myNoteAdapter =new NoteAdapter(getBaseContext(),listOfNotes);
+            myNoteAdapter =new NoteAdapter(getBaseContext());
+            myNoteAdapter.changeData(listOfNotes);
             myNoteAdapter.notifyDataSetChanged();
             recyclerView.setAdapter(myNoteAdapter);
         });

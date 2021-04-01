@@ -27,7 +27,11 @@ import android.widget.Toast;
 
 import com.example.androidproject.AddTripActivity;
 import com.example.androidproject.Addnote;
+import com.example.androidproject.NoteAdapter;
 import com.example.androidproject.R;
+import com.example.androidproject.dbroom.AppDatabase;
+import com.example.androidproject.dbroom.NoteModel;
+import com.example.androidproject.dbroom.NoteViewModel;
 import com.example.androidproject.dbroom.TripModel;
 import com.example.androidproject.dbroom.TripRepository;
 import com.example.androidproject.dbroom.TripViewModel;
@@ -133,18 +137,31 @@ public class UpcomingFragment extends Fragment implements DataTransfer , OnRecyc
     }
 
     @Override
-    public void startMap(String dest) {
+    public void startMap(String dest,int id) {
         DisplayMap(dest);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(getContext())) {
-            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:" + getActivity().getPackageName()));
-            startActivityForResult(intent, 106);
-        } else {
-            Intent startIntent = new Intent(getContext(), FloatWidgetService.class);
-            startIntent.putExtra("notes", "mnem");
-            getActivity().startService(startIntent);
-        }
+        NoteModel noteModel = new NoteModel();
+        NoteViewModel noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
+//          noteRepository = new NoteRepository(this);
+
+// room
+
+        noteViewModel.getAllNotesById(id).observe(this, noteModels -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(getContext())) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:" + getActivity().getPackageName()));
+                startActivityForResult(intent, 106);
+            } else {
+                Intent startIntent = new Intent(getContext(), FloatWidgetService.class);
+
+                startIntent.putExtra("notes", (ArrayList<NoteModel>) noteModels);
+                getActivity().startService(startIntent);
+            }
+
+        });
+
     }
+
+
 
     //    public void addTrip(TripData data) {
 //        upcomingTrips.add(data);

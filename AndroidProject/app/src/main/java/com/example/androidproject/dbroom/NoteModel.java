@@ -6,6 +6,8 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
+import java.io.Serializable;
+
 @Entity(tableName = "notes",
         foreignKeys = {
                 @ForeignKey(entity = TripModel.class,
@@ -13,7 +15,7 @@ import androidx.room.PrimaryKey;
                         childColumns = "tripId",
                         onDelete = ForeignKey.CASCADE)
         }, indices = {@Index(value = {"tripId"}, unique = false)})
-public class NoteModel {
+public class NoteModel implements Serializable {
 
     @PrimaryKey(autoGenerate = true)
     private int id;

@@ -70,7 +70,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
         holder.startBtn.setOnClickListener((event) -> {
             Log.i(TAG, "onBindViewHolder: START PRESSED : " + position);
-            delegate.startMap(trips.get(position).getEndPoint());
+            delegate.startMap(trips.get(position).getEndPoint(),trips.get(position).getId());
         });
         holder.notesBtn.setOnClickListener((event) -> {
             Log.i(TAG, "onBindViewHolder: NOTES PRESSED : " + position);

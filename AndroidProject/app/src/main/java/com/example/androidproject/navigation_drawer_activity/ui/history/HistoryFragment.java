@@ -82,7 +82,7 @@ public class HistoryFragment extends Fragment implements DataTransfer , OnRecycl
     }
 
     @Override
-    public void startMap(String dest) {
+    public void startMap(String dest,int id) {
 
     }
 

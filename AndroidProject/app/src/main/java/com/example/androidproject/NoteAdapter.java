@@ -18,8 +18,12 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.MyHolder> {
     List<NoteModel> note;
     Context context;
 
-    public NoteAdapter(Context context, List<NoteModel> note) {
-        this.note = note;
+   public void changeData(List<NoteModel> data){
+        note = data;
+        notifyDataSetChanged();
+    }
+
+    public NoteAdapter(Context context) {
         this.context = context;
     }
 
