@@ -50,8 +50,11 @@
     <string name="google_btn">sign in with google</string>
     <string name="facebook_btn">facebook</string>
     <string name="delete_btn_note">delete</string>
-    <string name="cancel">cancel</string>
+    <string name="cancel">cancel trip</string>
     <string name="btnStart">start</string>
+    <string name="from">Alex</string>
+    <string name="to">cairo</string>
+    <string name="Snooze">Snooze</string>
 
     <string-array name="status">
         <item>One Way</item>

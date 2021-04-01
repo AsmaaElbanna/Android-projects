@@ -7,9 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -21,25 +19,23 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 
-import com.example.androidproject.dbroom.NoteViewModel;
 import com.example.androidproject.dbroom.TripModel;
 import com.example.androidproject.dbroom.TripViewModel;
 import com.example.androidproject.navigation_drawer_activity.model.TripData;
-import com.example.androidproject.navigation_drawer_activity.support.UploadWorker;
+import com.example.androidproject.navigation_drawer_activity.support.TripWorker;
 import com.google.android.gms.common.api.Status;
 import com.google.android.libraries.places.compat.ui.PlaceAutocompleteFragment;
 import com.google.android.libraries.places.compat.ui.PlaceSelectionListener;
 import com.google.firebase.auth.FirebaseAuth;
 
-import java.sql.SQLData;
 import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 
@@ -124,6 +120,7 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
                 sTripName = etTripName.getText().toString();
                 sDate = tvDate.getText().toString();
                 sTime = tvTime.getText().toString();
+                long diffrence = getTimeDiffrenceInSeconds();
 
                 if ( sTripName.equals("")) {
                     Toast.makeText(AddTripActivity.this, "Please, Enter Trip Name", Toast.LENGTH_SHORT).show();
@@ -135,13 +132,16 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
                     Toast.makeText(AddTripActivity.this, "Please, Choose a Date", Toast.LENGTH_SHORT).show();
                 } else if (sTime.equals("Set Time")) {
                     Toast.makeText(AddTripActivity.this, "Please, Choose The Time", Toast.LENGTH_SHORT).show();
+                }else if(diffrence < 0){
+                    Toast.makeText(AddTripActivity.this, "Invalid Date", Toast.LENGTH_SHORT).show();
                 }  else {
-                    Intent returnIntent = new Intent();
-                    TripData tripData = new TripData(sTripName, sStartPoint, sEndPoint, sDate, sTime, sStatus, sData);
-                    returnIntent.putExtra("result", tripData);
-                    setResult(Activity.RESULT_OK, returnIntent);
+//                    Intent returnIntent = new Intent();
+//                    TripData tripData = new TripData(sTripName, sStartPoint, sEndPoint, sDate, sTime, sStatus, sData);
+//                    returnIntent.putExtra("result", tripData);
+//                    setResult(Activity.RESULT_OK, returnIntent);
 
-
+                    startWorkManager(diffrence);
+                    Log.i("TAG", "onClick: >>>"+diffrence);
 
                     //code insert data in room
                     tripModel.setName(sTripName);
@@ -155,8 +155,6 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
                  // String t= FirebaseAuth.getInstance().getCurrentUser().getEmail();
                     tripViewModel.insert(tripModel);
 
-
-                    startWorkManager();
                     finish();
                 }
             }
@@ -178,6 +176,12 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
 
             }
         });
+
+        calendar = Calendar.getInstance();
+        String currentDateString = DateFormat.getDateInstance(DateFormat.FULL).format(calendar.getTime());
+        tvDate.setText(currentDateString);
+        tvTime.setText(new Integer(calendar.get(Calendar.HOUR_OF_DAY)).toString() + ":"
+                + new Integer(calendar.get(Calendar.MINUTE)).toString());
     }
 
     private void setupAutoCompleteFragmentSource() {
@@ -238,11 +242,27 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
 
     }
 
-    private void startWorkManager(){
-        WorkRequest tripRequest = new OneTimeWorkRequest.Builder(UploadWorker.class)
-                .setInitialDelay(60, TimeUnit.SECONDS)
-                .addTag("mnem")
+    private long getTimeDiffrenceInSeconds(){
+        long difference = -1;
+        Date currentDate = Calendar.getInstance().getTime();
+        Date selectedDate = calendar.getTime();
+        difference = (selectedDate.getTime() - currentDate.getTime())/(1000);
+        return difference;
+    }
+
+    private void startWorkManager(long delay){
+
+        Data.Builder data = new Data.Builder();
+        data.putString("title",sTripName);
+        data.putString("dest",sEndPoint);
+        data.putString("source",sStartPoint);
+
+        WorkRequest tripRequest = new OneTimeWorkRequest.Builder(TripWorker.class)
+                .setInitialDelay(delay, TimeUnit.SECONDS)
+                .addTag(sTripName)
+                .setInputData(data.build())
                 .build();
+
         WorkManager.getInstance(this).enqueue(tripRequest);
     }
 

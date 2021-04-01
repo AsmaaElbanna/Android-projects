@@ -1,7 +1,10 @@
 package com.example.androidproject.navigation_drawer_activity;
 
 import android.app.Activity;
+import android.app.NotificationManager;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -40,6 +43,7 @@ import androidx.navigation.ui.NavigationUI;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.work.WorkManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,22 +65,38 @@ public class NavigationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation);
+
+        Intent parent = getIntent();
+        Log.i(TAG, "onCreate: "+parent.getStringExtra("title")+" : "+ parent.getStringExtra("dest"));
+        if(parent.getBooleanExtra("WakeUp",false)){
+            String tripName = parent.getStringExtra("title");
+            String destination = parent.getStringExtra("dest");
+            boolean start = parent.getBooleanExtra("start",false);
+            //move trip to history.
+            if(start){
+                displayMap(destination);
+            }
+            finish();
+        }else if(parent.getBooleanExtra("NotifyWakeUp",false)){
+            String tripName = parent.getStringExtra("title");
+            cancelWorkRequest(tripName);
+            String destination = parent.getStringExtra("dest");
+            boolean start = parent.getBooleanExtra("start",false);
+            //move trip to history.
+            if(start){
+                displayMap(destination);
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                getApplicationContext().getSystemService(NotificationManager.class).cancel(13);
+            }
+            finish();
+        }
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         isHomeFragment=true;
-//        FloatingActionButton fab = findViewById(R.id.upcoming_addBtn);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                int LAUNCH_SECOND_ACTIVITY = 1;
-//                Intent i = new Intent(NavigationActivity.this, AddTripActivity.class);
-//                startActivityForResult(i, LAUNCH_SECOND_ACTIVITY);
-//            }
-//        });
         drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.nav_upcoming, R.id.nav_history, R.id.nav_map)
                 .setDrawerLayout(drawer)
@@ -84,6 +104,8 @@ public class NavigationActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+
+
 
         navController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
             @Override
@@ -102,11 +124,6 @@ public class NavigationActivity extends AppCompatActivity {
 
 
         Log.i(TAG, "onCreate: " + UpcomingFragment.id);
-//        upcomingFragment = (UpcomingFragment) manager.findFragmentByTag(UpcomingFragment.tag);
-//        if (upcomingFragment != null){
-//            Log.i(TAG, "onCreate: Successful");
-//        } else
-//            Log.i(TAG, "onCreate: failed");
 
 
         appDatabase = AppDatabase.getDatabase(getBaseContext());
@@ -115,12 +132,6 @@ public class NavigationActivity extends AppCompatActivity {
         tripViewModel = new ViewModelProvider(this).get(TripViewModel.class);
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.navigation, menu);
-//        return true;
-//    }
 
     @Override
     public boolean onSupportNavigateUp() {
@@ -224,6 +235,25 @@ public class NavigationActivity extends AppCompatActivity {
                 isHomeFragment=true;
             }
         }
+    }
+
+    private void displayMap(String destination) {
+        try {
+            Uri uri = Uri.parse("https://www.google.co.in/maps/dir//" + destination);
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            intent.setPackage("com.google.android.apps.maps");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Uri uri = Uri.parse("http://play.google.com/store/apps/details?id=com.google.android.apps.maps");
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        }
+    }
+
+    void cancelWorkRequest(String name){
+        WorkManager.getInstance(this).cancelAllWorkByTag(name);
     }
 }
 
