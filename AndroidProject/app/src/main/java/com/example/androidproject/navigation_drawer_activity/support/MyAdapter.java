@@ -1,6 +1,7 @@
 package com.example.androidproject.navigation_drawer_activity.support;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -19,6 +20,7 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.androidproject.AddTripActivity;
 import com.example.androidproject.R;
 import com.example.androidproject.dbroom.TripModel;
 import com.example.androidproject.dbroom.TripViewModel;
@@ -88,6 +90,14 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
                 case R.id.action_edit:
                     Log.i(TAG, "showPopup: EDITING!!");
                     // editing action
+                    Intent intent =new Intent(context, AddTripActivity.class);
+                    intent.putExtra("editTrip",trips.get(position));
+                    Log.i(TAG, "showPopup: trip Model.............. "+ trips.get(position).getName());
+                    Log.i(TAG, "showPopup: trip Model.............. "+ trips.get(position).getStartPointLatitude());
+                    Log.i(TAG, "showPopup: trip Model.............. "+ trips.get(position).getId());
+
+                    context.startActivity(intent);
+
                     return true;
 
                 case R.id.action_remove:

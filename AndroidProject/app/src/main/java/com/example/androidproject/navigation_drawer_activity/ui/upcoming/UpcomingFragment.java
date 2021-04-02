@@ -47,7 +47,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UpcomingFragment extends Fragment implements DataTransfer , OnRecyclerViewListener {
+public class UpcomingFragment extends Fragment implements DataTransfer , OnRecyclerViewListener{
 
     private TripViewModel mViewModel;
     private final String TAG = "tag";

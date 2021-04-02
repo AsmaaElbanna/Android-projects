@@ -43,16 +43,16 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
-public class AddTripActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
+public class AddTripActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener{
 
     Button btnAdd, btnDate, btnTime;
     EditText etTripName;
     String sTripName, sStartPoint, sEndPoint, sDate, sTime, sData, sStatus;
     TextView tvDate, tvTime;
     private TripModel tripModel;
+    private TripModel tripModelEdit;
     private TripViewModel tripViewModel;
     private Calendar calendar;
-
 
     PlaceAutocompleteFragment autocompleteFragmentSource;
     PlaceAutocompleteFragment autocompleteFragmentDest;
@@ -62,8 +62,20 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_trip);
+        btnDate = findViewById(R.id.btnDate);
+        btnTime = findViewById(R.id.btnTime);
+        tvDate = findViewById(R.id.tvDate);
+        tvTime = findViewById(R.id.tvTime);
+        etTripName = findViewById(R.id.etTripName);
+        btnAdd = findViewById(R.id.btnAddTrip);
         tripModel = new TripModel();
          calendar = Calendar.getInstance();
+
+        tripModelEdit = (TripModel) getIntent().getSerializableExtra("editTrip");
+        if(tripModelEdit !=null){
+            btnAdd.setText("Edit");
+
+        }
 
 // part 1 room
         tripViewModel = new ViewModelProvider(this).get(TripViewModel.class);
@@ -82,6 +94,7 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
         tripModel.setTripRepeatingType("No_Repeat");
         tripModel.setType("One Way");
 
+
         setupAutoCompleteFragmentSource();
         setupAutoCompleteFragmentDest();
 
@@ -90,12 +103,9 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 sData = parent.getItemAtPosition(position).toString();
                 tripModel.setTripRepeatingType(sData);
-
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-
             }
         });
 
@@ -112,12 +122,7 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
 
             }
         });
-        btnDate = findViewById(R.id.btnDate);
-        btnTime = findViewById(R.id.btnTime);
-        tvDate = findViewById(R.id.tvDate);
-        tvTime = findViewById(R.id.tvTime);
-        etTripName = findViewById(R.id.etTripName);
-        btnAdd = findViewById(R.id.btnAddTrip);
+
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -141,8 +146,6 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
                     returnIntent.putExtra("result", tripData);
                     setResult(Activity.RESULT_OK, returnIntent);
 
-
-
                     //code insert data in room
                     tripModel.setName(sTripName);
                     tripModel.setStartPoint(sStartPoint);
@@ -152,16 +155,23 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
                     tripModel.setTimestamp(calendar.getTimeInMillis());
                    tripModel.setUserId(FirebaseAuth.getInstance().getCurrentUser().getUid());
                    tripModel.setEmail(FirebaseAuth.getInstance().getCurrentUser().getEmail());
-                 // String t= FirebaseAuth.getInstance().getCurrentUser().getEmail();
-                    tripViewModel.insert(tripModel);
+                  // String t= FirebaseAuth.getInstance().getCurrentUser().getEmail();
+                   // tripViewModel.insert(tripModel);
 
+                    // edit
+                    if(tripModelEdit!=null){
+                        tripViewModel.update(tripModelEdit);
+
+                    }else{
+                        tripViewModel.insert(tripModel,null);
+
+                    }
 
                     startWorkManager();
                     finish();
                 }
             }
         });
-
         btnDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -175,7 +185,6 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
             public void onClick(View v) {
                 DialogFragment timePicker = new TimeFragment();
                 timePicker.show(getSupportFragmentManager(), "time picker");
-
             }
         });
     }

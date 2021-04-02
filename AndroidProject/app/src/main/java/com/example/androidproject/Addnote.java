@@ -37,7 +37,6 @@ public class Addnote extends AppCompatActivity {
     NoteModel noteModel;
     private int tripId;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,7 +63,6 @@ public class Addnote extends AppCompatActivity {
             myNoteAdapter.notifyDataSetChanged();
             recyclerView.setAdapter(myNoteAdapter);
         });
-
         saveBtn = findViewById(R.id.save_note_btn);
         doneBtn = findViewById(R.id.done_btn);
         saveBtn.setOnClickListener(new View.OnClickListener() {

@@ -23,7 +23,6 @@ public interface TripDao {
     @Query("SELECT * FROM trips where status = 0  and email = :useremail order by timestamp asc ")
     LiveData<List<TripModel>> getAllUpComingTrips(String useremail);
 
-
     @Query("SELECT * FROM trips where status != 0 order by timestamp asc")
     LiveData<List<TripModel>> getAllPastTrips();
 
@@ -31,12 +30,11 @@ public interface TripDao {
     void update(TripModel tripModel);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insert(TripModel... tripModels);
+    long[] insert(TripModel... tripModels);
 
     @Delete
     void delete(TripModel tripModel);
 
     @Query("DELETE FROM trips")
     void deleteAll();
-
 }

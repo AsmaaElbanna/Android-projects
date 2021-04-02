@@ -1,6 +1,7 @@
 package com.example.androidproject.dbroom;
 
 import android.app.Application;
+import android.os.Handler;
 
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
@@ -32,8 +33,8 @@ public class TripViewModel extends AndroidViewModel {
         tripRepository.update(trip);
     }
 
-    public void insert(TripModel trip) {
-        tripRepository.insert(trip);
+    public void insert(TripModel trip, Handler handler) {
+        tripRepository.insert(trip, handler);
     }
 
     public void delete(TripModel trip) {
