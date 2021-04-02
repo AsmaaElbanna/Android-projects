@@ -48,13 +48,14 @@ public class TripWorker extends Worker {
         title = data.getString("title");
         source = data.getString("source");
         tripId = data.getInt("tripID",-1);
+        Log.i("TAG", "doWork: 11111"+title+destination+source+tripId);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             nManager = getApplicationContext().getSystemService(NotificationManager.class);
             nManager.cancel(13);
         }
 
-
+        Log.i("TAG", "doWork: "+title+destination+source+tripId);
         Intent service = new Intent(getApplicationContext(),MyService.class);
         service.putExtra("title",title);
         service.putExtra("source",source);

@@ -19,6 +19,7 @@ import com.example.androidproject.dbroom.TripDao;
 import com.example.androidproject.dbroom.TripModel;
 import com.example.androidproject.dbroom.TripViewModel;
 import com.example.androidproject.navigation_drawer_activity.model.TripData;
+import com.example.androidproject.navigation_drawer_activity.support.TripWorker;
 import com.example.androidproject.navigation_drawer_activity.ui.upcoming.UpcomingFragment;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -34,6 +35,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.view.GravityCompat;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
@@ -43,10 +46,14 @@ import androidx.navigation.ui.NavigationUI;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import io.reactivex.internal.operators.flowable.FlowableHide;
 
@@ -63,10 +70,13 @@ public class NavigationActivity extends AppCompatActivity {
     private List<TripModel> tripModels;
     boolean isHomeFragment;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation);
+
+        tripViewModel = new ViewModelProvider(this).get(TripViewModel.class);
 
         Intent parent = getIntent();
         Log.i(TAG, "onCreate: "+parent.getStringExtra("title")+" : "+ parent.getStringExtra("dest"));
@@ -75,12 +85,13 @@ public class NavigationActivity extends AppCompatActivity {
             int tripId = parent.getIntExtra("tripID",-1);
             String destination = parent.getStringExtra("dest");
             boolean start = parent.getBooleanExtra("start",false);
-            Log.i(TAG, "onCreate: <<<"+tripId);
+            Log.i(TAG, "onCreate: <<<KIRO>>>>"+tripId);
             //move trip to history.
+            moveToHistory(tripId);
             if(start){
                 displayMap(destination);
             }
-            finish();
+            //finish();
         }else if(notifyWake){
             int tripId = parent.getIntExtra("tripID",-1);
             String destination = parent.getStringExtra("dest");
@@ -88,6 +99,7 @@ public class NavigationActivity extends AppCompatActivity {
             Log.i(TAG, "onCreate: <<<"+tripId+"//"+destination);
             cancelWorkRequest(new Integer(tripId).toString());
             //move trip to history.
+            moveToHistory(tripId);
             if(start){
                 displayMap(destination);
             }
@@ -95,7 +107,7 @@ public class NavigationActivity extends AppCompatActivity {
                 getApplicationContext().getSystemService(NotificationManager.class).cancel(13);
             }
             notifyWake = false;
-            finish();
+
         }
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -118,9 +130,10 @@ public class NavigationActivity extends AppCompatActivity {
             public void onDestinationChanged(@NonNull NavController controller, @NonNull NavDestination destination, @Nullable Bundle arguments) {
                 switch (destination.getId()) {
                     case R.id.nav_signout:
+                        WorkManager.getInstance(NavigationActivity.this).cancelAllWork();
                         FirebaseAuth.getInstance().signOut();
                         finish();
-                        Toast.makeText(NavigationActivity.this, "sign out", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(NavigationActivity.this, "signed out", Toast.LENGTH_SHORT).show();
                         break;
                     default:
                         break;
@@ -138,6 +151,24 @@ public class NavigationActivity extends AppCompatActivity {
         tripViewModel = new ViewModelProvider(this).get(TripViewModel.class);
     }
 
+    private void startWorkManager(long delay , int id,String tripName,
+                                  String source,String destination){
+
+        Data.Builder data = new Data.Builder();
+        data.putString("title",tripName);
+        data.putString("dest",destination);
+        data.putString("source",source);
+        data.putInt("tripID",id);
+        Log.i("TAG", "startWorkManager: >>"+id);
+
+        WorkRequest tripRequest = new OneTimeWorkRequest.Builder(TripWorker.class)
+                .setInitialDelay(10, TimeUnit.SECONDS)
+                .addTag(new Integer(id).toString())
+                .setInputData(data.build())
+                .build();
+
+        WorkManager.getInstance(this).enqueue(tripRequest);
+    }
 
     @Override
     public boolean onSupportNavigateUp() {
@@ -176,23 +207,6 @@ public class NavigationActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == 1) {
-            if (resultCode == Activity.RESULT_OK) {
-                TripData result = (TripData) data.getSerializableExtra("result");
-                Toast.makeText(this, "done", Toast.LENGTH_SHORT).show();
-                Log.i(TAG, "onActivityResult: done" + result.tripName);
-//                upcomingFragment.addTrip(result);
-
-            }
-            if (resultCode == Activity.RESULT_CANCELED) {
-                //Write your code if there's no result
-            }
-        }
-    }//onActivityResult
 
     @Override
     protected void onStart() {
@@ -256,6 +270,43 @@ public class NavigationActivity extends AppCompatActivity {
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
         }
+    }
+
+    private void moveToHistory(int tripId){
+        Log.i(TAG, "moveToHistory: IAM HERE 1 !!! >> " + tripId);
+        LiveData<List<TripModel>> tripById = tripViewModel.getTripById(tripId);
+        Log.i(TAG, "moveToHistory: IAM HERE 2 !!!");
+
+        tripById.observe(this, new Observer<List<TripModel>>() {
+        
+            @Override
+            public void onChanged(@Nullable final List<TripModel> tripModels) {
+                Log.i(TAG, "onChanged: ID????"+tripById);
+                Log.i("TAG", "onCreate: DialogMessageActivity 4");
+                TripModel tripModel = tripModels.get(0);
+                if (tripModel.getTripRepeatingType().equals("No_Repeat")){
+                    tripModel.setStatus(1);
+                    tripViewModel.update(tripModel);
+                }else if(tripModel.getTripRepeatingType().equals("Daily")){
+                    startWorkManager(60*60*24,tripId,tripModel.getName(),
+                            tripModel.getStartPoint(),tripModel.getEndPoint());
+                }else if(tripModel.getTripRepeatingType().equals("Weekly")){
+                    startWorkManager(60*60*24*7,tripId,tripModel.getName(),
+                            tripModel.getStartPoint(),tripModel.getEndPoint());
+                }else if(tripModel.getTripRepeatingType().equals("Monthly")){
+                    startWorkManager(60*60*24*30,tripId,tripModel.getName(),
+                            tripModel.getStartPoint(),tripModel.getEndPoint());
+                }
+
+                finish();
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.i(TAG, "onDestroy: DESTROYED !!");
     }
 
     void cancelWorkRequest(String name){

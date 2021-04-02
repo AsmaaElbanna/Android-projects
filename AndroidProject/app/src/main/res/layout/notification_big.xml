@@ -5,11 +5,20 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/notification_title_lbl"
         android:layout_width="match_parent"
         android:layout_height="30dp"
         android:layout_weight="1"
         android:text="@string/txt"
+        android:textAlignment="center"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/notification_body_lbl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="TextView"
         android:textSize="18sp" />
 
     <LinearLayout
@@ -23,14 +32,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/StartTrip" />
+            android:background="@drawable/style_border"
+            android:text="@string/StartTrip"
+            android:textColor="@color/white" />
 
         <Button
             android:id="@+id/notification_cancel_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/cancel" />
+            android:background="@drawable/style_border"
+            android:text="@string/cancel"
+            android:textColor="@color/white" />
     </LinearLayout>
 
 </LinearLayout>

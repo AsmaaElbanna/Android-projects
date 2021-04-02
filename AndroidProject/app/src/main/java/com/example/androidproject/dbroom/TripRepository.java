@@ -31,6 +31,10 @@ public class TripRepository {
         return upComingTrips;
     }
 
+    public LiveData<List<TripModel>> getTripById(int id) {
+        return tripDao.getTripById(id);
+    }
+
     public LiveData<List<TripModel>> getAllPastTrips() {
         pastTrips = tripDao.getAllPastTrips();
         return pastTrips;

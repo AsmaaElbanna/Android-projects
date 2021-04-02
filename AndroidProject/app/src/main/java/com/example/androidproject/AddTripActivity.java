@@ -294,7 +294,7 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
         Log.i("TAG", "startWorkManager: >>"+id);
 
         WorkRequest tripRequest = new OneTimeWorkRequest.Builder(TripWorker.class)
-                .setInitialDelay(10, TimeUnit.SECONDS)
+                .setInitialDelay(delay, TimeUnit.SECONDS)
                 .addTag(new Integer(id).toString())
                 .setInputData(data.build())
                 .build();

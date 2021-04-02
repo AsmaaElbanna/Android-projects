@@ -1,6 +1,8 @@
 package com.example.androidproject.navigation_drawer_activity.ui.upcoming;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.app.Activity;
@@ -17,6 +19,10 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 
 import android.provider.Settings;
 import android.util.Log;
@@ -42,12 +48,14 @@ import com.example.androidproject.navigation_drawer_activity.model.TripData;
 import com.example.androidproject.navigation_drawer_activity.support.DataTransfer;
 import com.example.androidproject.navigation_drawer_activity.support.MyAdapter;
 import com.example.androidproject.navigation_drawer_activity.support.OnRecyclerViewListener;
+import com.example.androidproject.navigation_drawer_activity.support.TripWorker;
 import com.example.androidproject.navigation_drawer_activity.ui.map.FloatWidgetService;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class UpcomingFragment extends Fragment implements DataTransfer , OnRecyclerViewListener{
 
@@ -161,6 +169,8 @@ public class UpcomingFragment extends Fragment implements DataTransfer , OnRecyc
 
         });
 
+        moveToHistory(id);
+
     }
 
     @Override
@@ -170,6 +180,57 @@ public class UpcomingFragment extends Fragment implements DataTransfer , OnRecyc
         intent.putExtra("tripId", upcomingTrips.get(position).getId());
         Log.i(TAG, "saveNotes: " + upcomingTrips.size());
         startActivity(intent);
+    }
+
+    private void moveToHistory(int tripId){
+        Log.i(TAG, "moveToHistory: IAM HERE 1 !!! >> " + tripId);
+        LiveData<List<TripModel>> tripById = mViewModel.getTripById(tripId);
+        Log.i(TAG, "moveToHistory: IAM HERE 2 !!!");
+
+        tripById.observe(this, new Observer<List<TripModel>>() {
+
+            @Override
+            public void onChanged(@Nullable final List<TripModel> tripModels) {
+                Log.i(TAG, "onChanged: ID????"+tripById);
+                Log.i("TAG", "onCreate: DialogMessageActivity 4");
+                TripModel tripModel = tripModels.get(0);
+
+                if (tripModel.getTripRepeatingType().equals("No_Repeat")){
+                    tripModel.setStatus(1);
+                    mViewModel.update(tripModel);
+                }else if(tripModel.getTripRepeatingType().equals("Daily")){
+                    startWorkManager(60*60*24,tripId,tripModel.getName(),
+                            tripModel.getStartPoint(),tripModel.getEndPoint());
+                }else if(tripModel.getTripRepeatingType().equals("Weekly")){
+                    startWorkManager(60*60*24*7,tripId,tripModel.getName(),
+                            tripModel.getStartPoint(),tripModel.getEndPoint());
+                }else if(tripModel.getTripRepeatingType().equals("Monthly")){
+                    startWorkManager(60*60*24*30,tripId,tripModel.getName(),
+                            tripModel.getStartPoint(),tripModel.getEndPoint());
+                }
+
+
+            }
+        });
+    }
+
+    private void startWorkManager(long delay , int id,String tripName,
+                                  String source,String destination){
+
+        Data.Builder data = new Data.Builder();
+        data.putString("title",tripName);
+        data.putString("dest",destination);
+        data.putString("source",source);
+        data.putInt("tripID",id);
+        Log.i("TAG", "startWorkManager: >>"+id);
+
+        WorkRequest tripRequest = new OneTimeWorkRequest.Builder(TripWorker.class)
+                .setInitialDelay(10, TimeUnit.SECONDS)
+                .addTag(new Integer(id).toString())
+                .setInputData(data.build())
+                .build();
+
+        WorkManager.getInstance(getContext()).enqueue(tripRequest);
     }
 
     @Override

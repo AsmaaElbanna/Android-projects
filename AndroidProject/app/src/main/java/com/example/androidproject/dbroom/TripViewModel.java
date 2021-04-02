@@ -29,6 +29,10 @@ public class TripViewModel extends AndroidViewModel {
         return tripRepository.getAllPastTrips();
     }
 
+    public LiveData<List<TripModel>> getTripById(int id) {
+        return tripRepository.getTripById(id);
+    }
+
     public void update(TripModel trip) {
         tripRepository.update(trip);
     }
