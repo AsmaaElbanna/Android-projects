@@ -48,6 +48,8 @@ import androidx.work.WorkManager;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.internal.operators.flowable.FlowableHide;
+
 public class NavigationActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
@@ -68,6 +70,7 @@ public class NavigationActivity extends AppCompatActivity {
 
         Intent parent = getIntent();
         Log.i(TAG, "onCreate: "+parent.getStringExtra("title")+" : "+ parent.getStringExtra("dest"));
+        boolean notifyWake = parent.getBooleanExtra("NotifyWakeUp",false);
         if(parent.getBooleanExtra("WakeUp",false)){
             int tripId = parent.getIntExtra("tripID",-1);
             String destination = parent.getStringExtra("dest");
@@ -78,11 +81,12 @@ public class NavigationActivity extends AppCompatActivity {
                 displayMap(destination);
             }
             finish();
-        }else if(parent.getBooleanExtra("NotifyWakeUp",false)){
+        }else if(notifyWake){
             int tripId = parent.getIntExtra("tripID",-1);
             String destination = parent.getStringExtra("dest");
             boolean start = parent.getBooleanExtra("start",false);
-            Log.i(TAG, "onCreate: <<<"+tripId);
+            Log.i(TAG, "onCreate: <<<"+tripId+"//"+destination);
+            cancelWorkRequest(new Integer(tripId).toString());
             //move trip to history.
             if(start){
                 displayMap(destination);
@@ -90,6 +94,7 @@ public class NavigationActivity extends AppCompatActivity {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 getApplicationContext().getSystemService(NotificationManager.class).cancel(13);
             }
+            notifyWake = false;
             finish();
         }
 

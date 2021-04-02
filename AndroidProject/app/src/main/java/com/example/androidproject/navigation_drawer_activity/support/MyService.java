@@ -34,7 +34,7 @@ public class MyService extends JobIntentService {
         int tripId = intent.getIntExtra("tripID",-1);
         Log.i(TAG, "onHandleWork: ID>>>"+tripId);
         registerNewReciever(tripId,title,source,destination);
-        startBroadCast(title);
+        startBroadCast(new Integer(tripId).toString());
     }
 
 
@@ -58,7 +58,7 @@ public class MyService extends JobIntentService {
     }
 
     private void registerNewReciever(int tripId,String title,String source, String dest){
-        IntentFilter filter = new IntentFilter(title);
+        IntentFilter filter = new IntentFilter(new Integer(tripId).toString());
         receiver = new MyReceiver(tripId,title,source,dest);
         registerReceiver(receiver,filter);
     }

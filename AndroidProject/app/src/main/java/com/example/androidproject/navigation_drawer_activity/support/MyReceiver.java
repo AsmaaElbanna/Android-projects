@@ -15,6 +15,7 @@ import android.widget.RemoteViews;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.TaskStackBuilder;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
@@ -23,6 +24,7 @@ import androidx.work.WorkRequest;
 import com.example.androidproject.R;
 import com.example.androidproject.SignupActivity;
 import com.example.androidproject.navigation_drawer_activity.NavigationActivity;
+import com.google.android.gms.tasks.Task;
 
 import java.util.concurrent.TimeUnit;
 
@@ -120,28 +122,57 @@ public class MyReceiver extends BroadcastReceiver {
         }
 
         //PendingIntent pendingIntent1 = PendingIntent.getBroadcast(getApplicationContext(), 0, startBroadCast(), 0);
+//        Intent start = new Intent(context, NavigationActivity.class);
+//        start.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NEW_TASK);
+//        start.putExtra("tripID",tripId);
+//        start.putExtra("dest",destination);
+//        start.putExtra("NotifyWakeUp",true);
+//        start.putExtra("start",true);
+//        Log.i("TAG", "createNotificationChannel: ON SEND>>"+tripId+"/"+destination);
+//        start.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        PendingIntent startIntent = PendingIntent.getActivity(context,0,start,0);
+
+
+        //-----------------------
         Intent start = new Intent(context, NavigationActivity.class);
-        start.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NEW_TASK);
-        start.putExtra("tripID",tripId);
-        start.putExtra("dest",destination);
-        start.putExtra("NotifyWakeUp",true);
-        start.putExtra("start",true);
-        Log.i("TAG", "createNotificationChannel: ON SEND>>"+tripId+"/"+destination);
-        start.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        PendingIntent startIntent = PendingIntent.getActivity(context,0,start,0);
+        // Create the TaskStackBuilder and add the intent, which inflates the back stack
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+        stackBuilder.addNextIntentWithParentStack(start);
+        stackBuilder.editIntentAt(0).putExtra("tripID",tripId)
+                .putExtra("dest",destination)
+                .putExtra("NotifyWakeUp",true)
+                .putExtra("start",true);
+        // Get the PendingIntent containing the entire back stack
+        PendingIntent startPendingIntent =
+                stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
+
+
+        Intent cancel = new Intent(context, NavigationActivity.class);
+        // Create the TaskStackBuilder and add the intent, which inflates the back stack
+        TaskStackBuilder cancelstackBuilder = TaskStackBuilder.create(context);
+        cancelstackBuilder.addNextIntentWithParentStack(cancel);
+        cancelstackBuilder.editIntentAt(0).putExtra("tripID",tripId)
+                .putExtra("dest",destination)
+                .putExtra("NotifyWakeUp",true)
+                .putExtra("start",false);
+        // Get the PendingIntent containing the entire back stack
+        PendingIntent cancelPendingIntent =
+                cancelstackBuilder.getPendingIntent(1, PendingIntent.FLAG_UPDATE_CURRENT);
+        //-------------------------
 
 //        WakeUpReceiver wakeUpReceiver = new WakeUpReceiver(title,source,destination);
 //        PendingIntent rec = PendingIntent.getBroadcast(context,0,wakeUpReceiver,0);
 
 
 
-        Intent cancel = new Intent(context, NavigationActivity.class);
-        cancel.putExtra("tripID",tripId);
-        cancel.putExtra("dest",destination);
-        cancel.putExtra("NotifyWakeUp",true);
-        cancel.putExtra("start",false);
-        start.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NEW_TASK);
-        PendingIntent cancelIntent = PendingIntent.getActivity(context,1,cancel,0);
+//        Intent cancel = new Intent(context, NavigationActivity.class);
+//        cancel.putExtra("tripID",tripId);
+////        cancel.putExtra("dest",destination);
+////        cancel.putExtra("NotifyWakeUp",true);
+////        cancel.putExtra("start",false);
+//        start.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NEW_TASK);
+//        PendingIntent cancelIntent = PendingIntent.getActivity(context,1,cancel,0);
 
         Intent app = new Intent(context, NavigationActivity.class);
         PendingIntent appIntent = PendingIntent.getActivity(context,2,app,0);
@@ -158,8 +189,8 @@ public class MyReceiver extends BroadcastReceiver {
 //        RemoteViews contentView = new RemoteViews(getApplicationContext().getPackageName(), R.layout.notification_layout);
         RemoteViews notificationBig = new RemoteViews(context.getPackageName(),
                 R.layout.notification_big);
-        notificationBig.setOnClickPendingIntent(R.id.notification_cancel_btn,cancelIntent);
-        notificationBig.setOnClickPendingIntent(R.id.notification_start_btn, startIntent);
+        notificationBig.setOnClickPendingIntent(R.id.notification_cancel_btn,cancelPendingIntent);
+        notificationBig.setOnClickPendingIntent(R.id.notification_start_btn, startPendingIntent);
 //        builder.setCustomContentView(notificationView);
         builder.setCustomBigContentView(notificationBig);
         builder.setAutoCancel(true);
@@ -170,13 +201,14 @@ public class MyReceiver extends BroadcastReceiver {
     private void startWorkManager(Context context,long minutes){
 
         Data.Builder data = new Data.Builder();
-        data.putString("title",title);
+        data.putString("trip",title);
         data.putString("dest",destination);
         data.putString("source",source);
+        data.putInt("tripID",tripId);
 
         WorkRequest tripRequest = new OneTimeWorkRequest.Builder(TripWorker.class)
                 .setInitialDelay(1, TimeUnit.MINUTES)
-                .addTag(title)
+                .addTag(new Integer(tripId).toString())
                 .setInputData(data.build())
                 .build();
 
