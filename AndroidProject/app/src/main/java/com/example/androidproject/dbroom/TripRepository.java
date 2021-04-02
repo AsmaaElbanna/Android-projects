@@ -1,6 +1,10 @@
 package com.example.androidproject.dbroom;
 
 import android.app.Application;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+
 import androidx.lifecycle.LiveData;
 
 import java.util.List;
@@ -33,11 +37,12 @@ public class TripRepository {
     }
 
     public void update (TripModel tripModel) {
-        new InsertThread(tripDao, tripModel).start();
+        new UpdateThread(tripDao, tripModel).start();
     }
 
-    public void insert (TripModel tripModel) {
-        new InsertThread(tripDao, tripModel).start();
+    public void insert(TripModel tripModel, Handler handler) {
+        new InsertThread(tripDao, tripModel, handler).start();
+        //new insertAsyncTask(tripDao).execute(tripModel);
     }
 
     public void delete (TripModel tripModel) {
@@ -59,25 +64,38 @@ public class TripRepository {
         @Override
         public void run() {
             tripDao.update(trip);
+
         }
     }
 
     private class InsertThread extends Thread {
+        private final Handler handler;
+        private final TripDao tripDao;
+        private final TripModel trip;
 
-        private TripDao tripDao;
-        private TripModel trip;
-
-        InsertThread(TripDao tripDao, TripModel trip) {
+        InsertThread(TripDao tripDao, TripModel trip, Handler handler) {
             super();
             this.tripDao = tripDao;
             this.trip = trip;
+            this.handler = handler;
+            //this.idFromRoom = idFromRoom;
         }
 
         @Override
         public void run() {
-            tripDao.insert(trip);
+            long[] ids = tripDao.insert(trip);
+            if (handler != null) {
+                Bundle bundle = new Bundle();
+                bundle.putLongArray("ids", ids);
+                Message message = new Message();
+                message.setData(bundle);
+                handler.sendMessage(message);
+            }
+
+
         }
     }
+
     private static class DeleteAllTripsThread extends Thread {
 
         TripDao tripDao;

@@ -94,7 +94,8 @@ public class FloatWidgetService extends Service implements View.OnClickListener 
 
 
         notesRecyclerView = mFloatingWidget.findViewById(R.id.notesRecyclerView);
-        adapter = new NoteAdapter(getApplicationContext());
+       // adapter = new NoteAdapter(getApplicationContext());
+        adapter = new NoteAdapter(this);
 
 
         mFloatingWidget.findViewById(R.id.layoutCollapsed).setOnTouchListener(new View.OnTouchListener() {
