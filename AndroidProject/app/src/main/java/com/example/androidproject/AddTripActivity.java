@@ -74,7 +74,8 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
         tripModelEdit = (TripModel) getIntent().getSerializableExtra("editTrip");
         if(tripModelEdit !=null){
             btnAdd.setText("Edit");
-
+            tripModel=tripModelEdit;
+            etTripName.setText(tripModelEdit.getName());
         }
 
 // part 1 room
@@ -90,7 +91,6 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
         Spinner spinnerRepeat = (Spinner) findViewById(R.id.spinnerRepeat);
         Spinner spinnerStatus = findViewById(R.id.spinnerStatus);
 
-        tripModel = new TripModel();
         tripModel.setTripRepeatingType("No_Repeat");
         tripModel.setType("One Way");
 
@@ -153,14 +153,14 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
                     tripModel.setDate(sDate);
                     tripModel.setTime(sTime);
                     tripModel.setTimestamp(calendar.getTimeInMillis());
-                   tripModel.setUserId(FirebaseAuth.getInstance().getCurrentUser().getUid());
-                   tripModel.setEmail(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+                       tripModel.setUserId(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                       tripModel.setEmail(FirebaseAuth.getInstance().getCurrentUser().getEmail());
                   // String t= FirebaseAuth.getInstance().getCurrentUser().getEmail();
                    // tripViewModel.insert(tripModel);
 
                     // edit
                     if(tripModelEdit!=null){
-                        tripViewModel.update(tripModelEdit);
+                        tripViewModel.update(tripModel);
 
                     }else{
                         tripViewModel.insert(tripModel,null);
@@ -199,9 +199,7 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
                 sStartPoint = place.getName().toString();
                 tripModel.setStartPointLatitude(place.getLatLng().latitude);
                 tripModel.setStartPointLongitude(place.getLatLng().longitude);
-
             }
-
             @Override
             public void onError(Status status) {
                 Log.e("Error", status.getStatusMessage());
@@ -243,8 +241,6 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
         calendar.set(Calendar.HOUR_OF_DAY,hourOfDay);
         calendar.set(Calendar.MINUTE,minute);
         tripModel.setTime(time);
-
-
     }
 
     private void startWorkManager(){
