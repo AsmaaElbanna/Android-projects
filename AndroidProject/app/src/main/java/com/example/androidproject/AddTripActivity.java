@@ -27,6 +27,7 @@ import androidx.work.WorkRequest;
 import com.example.androidproject.dbroom.TripModel;
 import com.example.androidproject.dbroom.TripViewModel;
 import com.example.androidproject.navigation_drawer_activity.model.TripData;
+import com.example.androidproject.navigation_drawer_activity.support.DataTransfer;
 import com.example.androidproject.navigation_drawer_activity.support.TripWorker;
 import com.google.android.gms.common.api.Status;
 import com.google.android.libraries.places.compat.ui.PlaceAutocompleteFragment;
@@ -48,6 +49,7 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
     private TripModel tripModel;
     private TripViewModel tripViewModel;
     private Calendar calendar;
+
 
 
     PlaceAutocompleteFragment autocompleteFragmentSource;
@@ -154,6 +156,7 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
                    tripModel.setEmail(FirebaseAuth.getInstance().getCurrentUser().getEmail());
                  // String t= FirebaseAuth.getInstance().getCurrentUser().getEmail();
                     tripViewModel.insert(tripModel);
+//                    Log.i("TAG", "onClick: >>>> ID >>>"+tripModel.getId());
 
                     finish();
                 }
@@ -257,11 +260,14 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
         data.putString("dest",sEndPoint);
         data.putString("source",sStartPoint);
 
+
         WorkRequest tripRequest = new OneTimeWorkRequest.Builder(TripWorker.class)
-                .setInitialDelay(delay, TimeUnit.SECONDS)
+                .setInitialDelay(0, TimeUnit.SECONDS)
                 .addTag(sTripName)
                 .setInputData(data.build())
                 .build();
+
+        Log.i("TAG", "startWorkManager: >>>"+sTripName+"<<<");
 
         WorkManager.getInstance(this).enqueue(tripRequest);
     }

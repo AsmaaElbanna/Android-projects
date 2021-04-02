@@ -91,6 +91,7 @@ public class HistoryFragment extends Fragment implements DataTransfer , OnRecycl
 
     }
 
+
     @Override
     public void onDeleteItem(int position) {
 

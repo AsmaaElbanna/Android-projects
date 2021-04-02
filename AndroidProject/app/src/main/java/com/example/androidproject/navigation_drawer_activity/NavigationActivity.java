@@ -82,6 +82,8 @@ public class NavigationActivity extends AppCompatActivity {
             cancelWorkRequest(tripName);
             String destination = parent.getStringExtra("dest");
             boolean start = parent.getBooleanExtra("start",false);
+            Log.i("TAG", "startWorkManager: >>>"+tripName+"<<<"+">>>"+destination+"<<<");
+            WorkManager.getInstance(this).cancelAllWork();
             //move trip to history.
             if(start){
                 displayMap(destination);

@@ -20,4 +20,6 @@
     <style name="Theme.AndroidProject.AppBarOverlay"
         parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
     <style name="Theme.AndroidProject.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="dialogTheme" parent="@style/Theme.AppCompat.Dialog">
+    </style>
 </resources>
