@@ -85,7 +85,7 @@ public class NavigationActivity extends AppCompatActivity {
             int tripId = parent.getIntExtra("tripID",-1);
             String destination = parent.getStringExtra("dest");
             boolean start = parent.getBooleanExtra("start",false);
-            Log.i(TAG, "onCreate: <<<KIRO>>>>"+tripId);
+            Log.i(TAG, "onCreate: <<<>>>>"+tripId);
             //move trip to history.
             moveToHistory(tripId);
             if(start){

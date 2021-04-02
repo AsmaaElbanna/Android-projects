@@ -1,5 +1,6 @@
 package com.example.androidproject.navigation_drawer_activity.ui.upcoming;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -52,6 +53,8 @@ import com.example.androidproject.navigation_drawer_activity.support.TripWorker;
 import com.example.androidproject.navigation_drawer_activity.ui.map.FloatWidgetService;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -108,6 +111,13 @@ public class UpcomingFragment extends Fragment implements DataTransfer , OnRecyc
         String email= FirebaseAuth.getInstance().getCurrentUser().getEmail();
         mViewModel.getAllUpcomingTrips(email).observe(getViewLifecycleOwner(), tripModels -> {
             myAdapter.setTrips(tripModels);
+
+            if(tripModels.size() == 0){
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    Log.i(TAG, "onViewCreated: IAM HERE");
+                    fetchDataWithFirebaseDatabase();
+                }
+            }
 
             // 31-3
             upcomingTrips = tripModels;
@@ -171,6 +181,24 @@ public class UpcomingFragment extends Fragment implements DataTransfer , OnRecyc
 
         moveToHistory(id);
 
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private List<TripModel> fetchDataWithFirebaseDatabase() {
+        List<TripModel> tripList = new ArrayList<>();
+//        Log.i(TAG, "fetchDataWithFirebaseDatabase: " + myRef.get().getResult().getValue());
+        FirebaseDatabase.getInstance().getReference().child("trips").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnCompleteListener(task -> {
+            DataSnapshot result = task.getResult();
+            Iterable<DataSnapshot> children = result.getChildren();
+            children.forEach(dataSnapshot -> {
+                TripModel value = dataSnapshot.getValue(TripModel.class);
+                upcomingTrips.add(value);
+                myAdapter.setTrips(upcomingTrips);
+                myAdapter.notifyDataSetChanged();
+            });
+        });
+        return tripList;
     }
 
     @Override
