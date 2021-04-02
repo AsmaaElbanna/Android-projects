@@ -19,6 +19,10 @@
         <activity
             android:name=".DialogActivity"
             android:theme="@style/Theme.AppCompat.Dialog.Alert"></activity>
+        <service
+            android:name=".navigation_drawer_activity.support.MyService"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <activity android:name=".Addnote">
 

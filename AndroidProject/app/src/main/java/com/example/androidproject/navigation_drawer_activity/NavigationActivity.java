@@ -69,19 +69,20 @@ public class NavigationActivity extends AppCompatActivity {
         Intent parent = getIntent();
         Log.i(TAG, "onCreate: "+parent.getStringExtra("title")+" : "+ parent.getStringExtra("dest"));
         if(parent.getBooleanExtra("WakeUp",false)){
-            String tripName = parent.getStringExtra("title");
+            int tripId = parent.getIntExtra("tripID",-1);
             String destination = parent.getStringExtra("dest");
             boolean start = parent.getBooleanExtra("start",false);
+            Log.i(TAG, "onCreate: <<<"+tripId);
             //move trip to history.
             if(start){
                 displayMap(destination);
             }
             finish();
         }else if(parent.getBooleanExtra("NotifyWakeUp",false)){
-            String tripName = parent.getStringExtra("title");
-            cancelWorkRequest(tripName);
+            int tripId = parent.getIntExtra("tripID",-1);
             String destination = parent.getStringExtra("dest");
             boolean start = parent.getBooleanExtra("start",false);
+            Log.i(TAG, "onCreate: <<<"+tripId);
             //move trip to history.
             if(start){
                 displayMap(destination);

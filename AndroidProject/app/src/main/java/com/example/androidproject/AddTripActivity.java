@@ -4,7 +4,11 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -16,6 +20,8 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -49,6 +55,21 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
     private TripModel tripModelEdit;
     private TripViewModel tripViewModel;
     private Calendar calendar;
+    private long diffrence = 0;
+
+
+    private Handler handler = new Handler(Looper.myLooper()) {
+        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            Bundle bundle = msg.getData();
+            long[] ids = bundle.getLongArray("ids");
+            int tripId = (int) ids[0];
+            Log.i("TAG", "test1: handler: " + calendar.getTimeInMillis() + " tripId: " + tripId);
+            startWorkManager(diffrence,tripId);
+
+        }
+    };
 
     PlaceAutocompleteFragment autocompleteFragmentSource;
     PlaceAutocompleteFragment autocompleteFragmentDest;
@@ -125,7 +146,7 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
                 sTripName = etTripName.getText().toString();
                 sDate = tvDate.getText().toString();
                 sTime = tvTime.getText().toString();
-                long diffrence = getTimeDiffrenceInSeconds();
+                diffrence = getTimeDiffrenceInSeconds();
 
                 if ( sTripName.equals("")) {
                     Toast.makeText(AddTripActivity.this, "Please, Enter Trip Name", Toast.LENGTH_SHORT).show();
@@ -145,7 +166,7 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
 //                    returnIntent.putExtra("result", tripData);
 //                    setResult(Activity.RESULT_OK, returnIntent);
 
-                    startWorkManager(diffrence);
+                    //startWorkManager(diffrence);
                     Log.i("TAG", "onClick: >>>"+diffrence);
 
                     //code insert data in room
@@ -165,11 +186,11 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
                         tripViewModel.update(tripModelEdit);
 
                     }else{
-                        tripViewModel.insert(tripModel,null);
+                        tripViewModel.insert(tripModel,handler);
 
                     }
 
-                    startWorkManager();
+                    //startWorkManager();
                     finish();
                 }
             }
@@ -263,15 +284,17 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
         return difference;
     }
 
-    private void startWorkManager(long delay){
+    private void startWorkManager(long delay , int id){
 
         Data.Builder data = new Data.Builder();
         data.putString("title",sTripName);
         data.putString("dest",sEndPoint);
         data.putString("source",sStartPoint);
+        data.putInt("tripID",id);
+        Log.i("TAG", "startWorkManager: >>"+id);
 
         WorkRequest tripRequest = new OneTimeWorkRequest.Builder(TripWorker.class)
-                .setInitialDelay(delay, TimeUnit.SECONDS)
+                .setInitialDelay(10, TimeUnit.SECONDS)
                 .addTag(sTripName)
                 .setInputData(data.build())
                 .build();
