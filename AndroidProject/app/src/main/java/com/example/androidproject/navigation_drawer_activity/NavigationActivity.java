@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,11 +16,14 @@ import android.widget.Toast;
 import com.example.androidproject.AddTripActivity;
 import com.example.androidproject.R;
 import com.example.androidproject.dbroom.AppDatabase;
+import com.example.androidproject.dbroom.NoteModel;
+import com.example.androidproject.dbroom.NoteViewModel;
 import com.example.androidproject.dbroom.TripDao;
 import com.example.androidproject.dbroom.TripModel;
 import com.example.androidproject.dbroom.TripViewModel;
 import com.example.androidproject.navigation_drawer_activity.model.TripData;
 import com.example.androidproject.navigation_drawer_activity.support.TripWorker;
+import com.example.androidproject.navigation_drawer_activity.ui.map.FloatWidgetService;
 import com.example.androidproject.navigation_drawer_activity.ui.upcoming.UpcomingFragment;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -89,7 +93,8 @@ public class NavigationActivity extends AppCompatActivity {
             //move trip to history.
             moveToHistory(tripId);
             if(start){
-                displayMap(destination);
+                displayMap(destination,tripId);
+
             }
             //finish();
         }else if(notifyWake){
@@ -101,7 +106,7 @@ public class NavigationActivity extends AppCompatActivity {
             //move trip to history.
             moveToHistory(tripId);
             if(start){
-                displayMap(destination);
+                displayMap(destination,tripId);
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 getApplicationContext().getSystemService(NotificationManager.class).cancel(13);
@@ -162,7 +167,7 @@ public class NavigationActivity extends AppCompatActivity {
         Log.i("TAG", "startWorkManager: >>"+id);
 
         WorkRequest tripRequest = new OneTimeWorkRequest.Builder(TripWorker.class)
-                .setInitialDelay(10, TimeUnit.SECONDS)
+                .setInitialDelay(delay, TimeUnit.SECONDS)
                 .addTag(new Integer(id).toString())
                 .setInputData(data.build())
                 .build();
@@ -257,13 +262,28 @@ public class NavigationActivity extends AppCompatActivity {
         }
     }
 
-    private void displayMap(String destination) {
+    private void displayMap(String destination,int id) {
         try {
             Uri uri = Uri.parse("https://www.google.co.in/maps/dir//" + destination);
             Intent intent = new Intent(Intent.ACTION_VIEW, uri);
             intent.setPackage("com.google.android.apps.maps");
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
+
+            NoteViewModel noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
+            noteViewModel.getAllNotesById(id).observe(this, noteModels -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+                    Intent widgetIntent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                            Uri.parse("package:" + getPackageName()));
+                    startActivityForResult(widgetIntent, 106);
+                } else {
+                    Intent startIntent = new Intent(this, FloatWidgetService.class);
+
+                    startIntent.putExtra("notes", (ArrayList<NoteModel>) noteModels);
+                    startService(startIntent);
+                }
+
+            });
         } catch (ActivityNotFoundException e) {
             Uri uri = Uri.parse("http://play.google.com/store/apps/details?id=com.google.android.apps.maps");
             Intent intent = new Intent(Intent.ACTION_VIEW, uri);
@@ -297,7 +317,6 @@ public class NavigationActivity extends AppCompatActivity {
                     startWorkManager(60*60*24*30,tripId,tripModel.getName(),
                             tripModel.getStartPoint(),tripModel.getEndPoint());
                 }
-
                 finish();
             }
         });

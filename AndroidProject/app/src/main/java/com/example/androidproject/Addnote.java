@@ -68,17 +68,16 @@ public class Addnote extends AppCompatActivity {
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String noteString = addNoteTxt.getText().toString().trim();
-                noteModel.setNote(noteString);
-                Log.i(TAG, "onClick: "+noteModel);
-               // listOfNotes.add(noteModel);
-              // listOfNotes.add(noteString);
-             // myNoteAdapter.notifyDataSetChanged();
-              NoteModel noteModel=new NoteModel();
-              noteModel.setNote(noteString);
-              noteModel.setTripId(tripId);
-              noteViewModel.insert(noteModel);
-
+                if(!addNoteTxt.getText().toString().isEmpty()) {
+                    String noteString = addNoteTxt.getText().toString().trim();
+                    noteModel.setNote(noteString);
+                    Log.i(TAG, "onClick: " + noteModel);
+                    NoteModel noteModel = new NoteModel();
+                    noteModel.setNote(noteString);
+                    noteModel.setTripId(tripId);
+                    noteViewModel.insert(noteModel);
+                    addNoteTxt.setText("");
+                }
             }
         });
         doneBtn.setOnClickListener(new View.OnClickListener() {

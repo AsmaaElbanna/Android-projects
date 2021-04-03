@@ -16,17 +16,31 @@
         android:roundIcon="@drawable/logotrip"
         android:supportsRtl="true"
         android:theme="@style/Theme.AndroidProject">
+        <receiver
+            android:name=".navigation_drawer_activity.support.CancelReceiver"
+            android:enabled="true"
+            android:exported="true"></receiver>
+
+        <service
+            android:name=".navigation_drawer_activity.support.TryService"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <receiver
+            android:name=".navigation_drawer_activity.support.TryReceiver"
+            android:enabled="true"
+            android:exported="true" />
+
         <activity
             android:name=".DialogActivity"
-            android:theme="@style/Theme.AppCompat.Dialog.Alert"></activity>
+            android:theme="@style/Theme.AppCompat.Dialog.Alert" />
+
         <service
             android:name=".navigation_drawer_activity.support.MyService"
             android:exported="true"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
-        <activity android:name=".Addnote">
-
-        </activity>
+        <activity android:name=".Addnote" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -35,24 +49,23 @@
         <activity android:name=".AddTripActivity" />
         <activity
             android:name=".navigation_drawer_activity.NavigationActivity"
-            android:theme="@style/Theme.AndroidProject.NoActionBar">
-        </activity>
+            android:theme="@style/Theme.AndroidProject.NoActionBar" />
         <activity android:name=".SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SignupActivity" >
+        <activity android:name=".SignupActivity" />
+        <activity android:name=".LoginActivity" >
 
         </activity>
-        <activity android:name=".LoginActivity">
-        </activity>
+
         <service
             android:name=".navigation_drawer_activity.ui.map.FloatWidgetService"
             android:enabled="true"
             android:exported="true" />
-
     </application>
 
 </manifest>

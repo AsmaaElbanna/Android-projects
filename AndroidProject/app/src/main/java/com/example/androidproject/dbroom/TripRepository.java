@@ -31,6 +31,7 @@ public class TripRepository {
         return upComingTrips;
     }
 
+
     public LiveData<List<TripModel>> getTripById(int id) {
         return tripDao.getTripById(id);
     }
@@ -42,6 +43,12 @@ public class TripRepository {
 
     public void update (TripModel tripModel) {
         new UpdateThread(tripDao, tripModel).start();
+    }
+
+    public void updateStatusById(int id){
+        new Thread(()->{
+            this.tripDao.updateStatusById(id);
+        }).start();
     }
 
     public void insert(TripModel tripModel, Handler handler) {

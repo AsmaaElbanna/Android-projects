@@ -8,7 +8,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.WindowManager;
 import android.widget.RemoteViews;
@@ -75,14 +77,11 @@ public class MyReceiver extends BroadcastReceiver {
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         // User cancelled the dialog
-                        Log.i("msg", "cancel");
-                        Intent app = new Intent(context, NavigationActivity.class);
-                        app.putExtra("tripID",tripId);
-                        app.putExtra("dest",destination);
-                        app.putExtra("WakeUp",true);
-                        app.putExtra("start",false);
-                        app.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        context.startActivity(app);
+                        Intent service = new Intent(context,TryService.class);
+                        service.putExtra("dest",destination);
+                        service.putExtra("tripID",tripId);
+                        service.putExtra("start",false);
+                        TryService.enqueueWork(context,service);
                         dialog.dismiss();
                     }
                 })
@@ -148,6 +147,21 @@ public class MyReceiver extends BroadcastReceiver {
         PendingIntent cancelPendingIntent =
                 cancelstackBuilder.getPendingIntent(1, PendingIntent.FLAG_UPDATE_CURRENT);
 
+        //---------------------------------------------------
+        SharedPreferences spManager = context.getSharedPreferences("navigate", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editManager = spManager.edit();
+        editManager.putInt("tripID",tripId);
+        editManager.putString("dest",destination);
+        editManager.commit();
+
+        Intent startIntent = new Intent(context,TryReceiver.class);
+        PendingIntent startPending = PendingIntent.getBroadcast(context,5,startIntent,0);
+
+        Intent cancelIntent = new Intent(context,CancelReceiver.class);
+        PendingIntent cancelPending = PendingIntent.getBroadcast(context,13,cancelIntent,0);
+
+        //---------------------------------------------------
+
 
         Intent app = new Intent(context, NavigationActivity.class);
         PendingIntent appIntent = PendingIntent.getActivity(context,2,app,0);
@@ -169,7 +183,7 @@ public class MyReceiver extends BroadcastReceiver {
         notificationBig.setTextViewText(R.id.notification_title_lbl,title);
         Log.i("TAG", "createNotificationChannel: "+title);
         notificationBig.setTextViewText(R.id.notification_body_lbl,"your trip from: "+source+"\t\t to:"+destination);
-        notificationBig.setOnClickPendingIntent(R.id.notification_cancel_btn,cancelPendingIntent);
+        notificationBig.setOnClickPendingIntent(R.id.notification_cancel_btn,cancelPending);
         notificationBig.setOnClickPendingIntent(R.id.notification_start_btn, startPendingIntent);
 //        builder.setCustomContentView(notificationView);
         builder.setCustomBigContentView(notificationBig);
@@ -195,4 +209,5 @@ public class MyReceiver extends BroadcastReceiver {
 
         WorkManager.getInstance(context).enqueue(tripRequest);
     }
+
 }

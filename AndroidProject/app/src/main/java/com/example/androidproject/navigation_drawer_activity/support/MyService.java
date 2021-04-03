@@ -13,13 +13,9 @@ import androidx.core.app.JobIntentService;
 
 public class MyService extends JobIntentService {
 
-//    public MyService() {
-//        super("MyService");
-//    }
     private BroadcastReceiver receiver;
     static final String TAG = "APPLICATION";
     private static final int JOB_ID = 1000;
-    private final  String FILENAME = "SavePic";
 
     static void enqueueWork(Context context, Intent work) {
         enqueueWork(context, MyService.class, JOB_ID, work);

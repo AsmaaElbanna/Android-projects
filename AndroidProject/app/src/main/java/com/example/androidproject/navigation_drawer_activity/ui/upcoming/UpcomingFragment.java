@@ -112,12 +112,12 @@ public class UpcomingFragment extends Fragment implements DataTransfer , OnRecyc
         mViewModel.getAllUpcomingTrips(email).observe(getViewLifecycleOwner(), tripModels -> {
             myAdapter.setTrips(tripModels);
 
-            if(tripModels.size() == 0){
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    Log.i(TAG, "onViewCreated: IAM HERE");
-                    fetchDataWithFirebaseDatabase();
-                }
-            }
+//            if(tripModels.size() == 0){
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//                    Log.i(TAG, "onViewCreated: IAM HERE");
+//                    fetchDataWithFirebaseDatabase();
+//                }
+//            }
 
             // 31-3
             upcomingTrips = tripModels;
@@ -159,6 +159,7 @@ public class UpcomingFragment extends Fragment implements DataTransfer , OnRecyc
     @Override
     public void startMap(String dest,int id) {
         DisplayMap(dest);
+        WorkManager.getInstance(getContext()).cancelAllWorkByTag(new Integer(id).toString());
         NoteModel noteModel = new NoteModel();
         NoteViewModel noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
 //          noteRepository = new NoteRepository(this);

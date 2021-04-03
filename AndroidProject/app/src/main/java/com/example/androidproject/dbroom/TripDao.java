@@ -32,6 +32,9 @@ public interface TripDao {
     @Update
     void update(TripModel tripModel);
 
+    @Query("UPDATE trips SET status = 1 WHERE id = :id")
+    void updateStatusById(int id);
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     long[] insert(TripModel... tripModels);
 
