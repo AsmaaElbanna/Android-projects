@@ -35,7 +35,6 @@ public class SignupActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-
                 String emailString = emailTxt.getText().toString();
                 String passwordString = passwordTxt.getText().toString();
                 myAuth.createUserWithEmailAndPassword(emailString,passwordString).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -45,8 +44,8 @@ public class SignupActivity extends AppCompatActivity {
                             Toast.makeText(SignupActivity.this, "Registered successfuly", Toast.LENGTH_SHORT).show();
                             Intent intent =new Intent(getApplicationContext(), NavigationActivity.class);
                             startActivity(intent);
-                            Activity parent = getParent();
-                            parent.finish();
+//                            Activity parent = getParent();
+//                            parent.finish();
                             finish();
                         }else{
                             Toast.makeText(SignupActivity.this, "Registeration failed", Toast.LENGTH_SHORT).show();
