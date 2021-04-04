@@ -56,8 +56,14 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class UpcomingFragment extends Fragment implements DataTransfer , OnRecyclerViewListener{
@@ -111,16 +117,28 @@ public class UpcomingFragment extends Fragment implements DataTransfer , OnRecyc
         String email= FirebaseAuth.getInstance().getCurrentUser().getEmail();
         mViewModel.getAllUpcomingTrips(email).observe(getViewLifecycleOwner(), tripModels -> {
             myAdapter.setTrips(tripModels);
-
-//            if(tripModels.size() == 0){
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-//                    Log.i(TAG, "onViewCreated: IAM HERE");
-//                    fetchDataWithFirebaseDatabase();
-//                }
-//            }
-
             // 31-3
             upcomingTrips = tripModels;
+
+            if(NavigationActivity.firstTime){
+                if(upcomingTrips.size() == 0){
+//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//                        Log.i(TAG, "onViewCreated: IAM HERE");
+//                        fetchDataWithFirebaseDatabase();
+//                    }
+                }else{
+                    for(TripModel trip:upcomingTrips){
+                        long delay = getNewDelay(trip.getDate(),trip.getTime());
+                        Log.i(TAG, "onViewCreated: DELAYYY>>"+delay);
+                        if(delay>0) {
+                            startWorkManager(delay, trip.getId(), trip.getName(),
+                                    trip.getStartPoint(), trip.getEndPoint());
+                        }else{
+                            moveToHistory(trip.getId());
+                        }
+                    }
+                }
+            }
         });
         Log.i(TAG, "onViewCreated: " + getId() + "/" + R.id.nav_upcoming);
         tvDestination = view.findViewById(R.id.trip_row_endLbl);
@@ -140,6 +158,34 @@ public class UpcomingFragment extends Fragment implements DataTransfer , OnRecyc
                 }
             }
         });
+    }
+
+    private long getNewDelay(String dateString,String timeString){
+        long difference = -1;
+        Log.i(TAG, "getNewDelay: "+dateString+"//"+timeString);
+        DateFormat format = new SimpleDateFormat("EEE, MMM d, yyyy", Locale.ENGLISH);
+        Date date = null;
+        try {
+            date = format.parse(dateString);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+
+            String[] times = timeString.split(":");
+            int hours = Integer.parseInt(times[0]);
+            int minutes = Integer.parseInt(times[1]);
+            calendar.set(Calendar.HOUR_OF_DAY,hours);
+            calendar.set(Calendar.MINUTE,minutes);
+
+            Date currentDate = Calendar.getInstance().getTime();
+            Date selectedDate = calendar.getTime();
+            difference = (selectedDate.getTime() - currentDate.getTime())/(1000);
+
+//            Log.i(TAG, "onViewCreated: date"+calendar.getTime() + "//time>>"+hours+":"+minutes);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return difference;
     }
 
     private void DisplayMap(String destination) {
@@ -189,7 +235,8 @@ public class UpcomingFragment extends Fragment implements DataTransfer , OnRecyc
     private List<TripModel> fetchDataWithFirebaseDatabase() {
         List<TripModel> tripList = new ArrayList<>();
 //        Log.i(TAG, "fetchDataWithFirebaseDatabase: " + myRef.get().getResult().getValue());
-        FirebaseDatabase.getInstance().getReference().child("trips").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnCompleteListener(task -> {
+        FirebaseDatabase.getInstance().getReference().child("trips").child(FirebaseAuth.getInstance()
+                .getCurrentUser().getUid()).get().addOnCompleteListener(task -> {
             DataSnapshot result = task.getResult();
             Iterable<DataSnapshot> children = result.getChildren();
             children.forEach(dataSnapshot -> {
@@ -197,6 +244,17 @@ public class UpcomingFragment extends Fragment implements DataTransfer , OnRecyc
                 upcomingTrips.add(value);
                 myAdapter.setTrips(upcomingTrips);
                 myAdapter.notifyDataSetChanged();
+
+                for(TripModel trip:upcomingTrips){
+                    long delay = getNewDelay(trip.getDate(),trip.getTime());
+                    Log.i(TAG, "fetchDataWithFirebaseDatabase: DELAY>>> "+delay);
+                    if(delay>0) {
+                        startWorkManager(delay, trip.getId(), trip.getName(),
+                                trip.getStartPoint(), trip.getEndPoint());
+                    }else{
+                        moveToHistory(trip.getId());
+                    }
+                }
             });
         });
         return tripList;
@@ -216,7 +274,7 @@ public class UpcomingFragment extends Fragment implements DataTransfer , OnRecyc
         LiveData<List<TripModel>> tripById = mViewModel.getTripById(tripId);
         Log.i(TAG, "moveToHistory: IAM HERE 2 !!!");
 
-        tripById.observe(this, new Observer<List<TripModel>>() {
+        tripById.observe(getActivity(), new Observer<List<TripModel>>() {
 
             @Override
             public void onChanged(@Nullable final List<TripModel> tripModels) {
@@ -254,7 +312,7 @@ public class UpcomingFragment extends Fragment implements DataTransfer , OnRecyc
         Log.i("TAG", "startWorkManager: >>"+id);
 
         WorkRequest tripRequest = new OneTimeWorkRequest.Builder(TripWorker.class)
-                .setInitialDelay(10, TimeUnit.SECONDS)
+                .setInitialDelay(delay, TimeUnit.SECONDS)
                 .addTag(new Integer(id).toString())
                 .setInputData(data.build())
                 .build();

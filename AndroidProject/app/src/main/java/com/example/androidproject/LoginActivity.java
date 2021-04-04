@@ -62,6 +62,7 @@ public class LoginActivity extends AppCompatActivity {
                             //  FirebaseUser user = firebaseAuth.getCurrentUser();
                             Toast.makeText(LoginActivity.this, "Login successfuly", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(LoginActivity.this, NavigationActivity.class);
+                            intent.putExtra("firstTime",true);
                             startActivity(intent);
                         } else {
                             Toast.makeText(LoginActivity.this, "Login failed", Toast.LENGTH_SHORT).show();
@@ -80,7 +81,6 @@ public class LoginActivity extends AppCompatActivity {
         google.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 signUpGoogle();
             }
         });
@@ -97,7 +97,10 @@ public class LoginActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            homeActivity();
+                            Intent intent = new Intent(LoginActivity.this, NavigationActivity.class);
+                            intent.putExtra("firstTime",true);
+                            startActivity(intent);
+                            finishAffinity();
                             Toast.makeText(LoginActivity.this, "login successfully", Toast.LENGTH_SHORT).show();
                         }
                     }

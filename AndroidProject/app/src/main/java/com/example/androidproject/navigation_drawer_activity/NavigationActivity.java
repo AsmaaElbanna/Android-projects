@@ -74,15 +74,17 @@ public class NavigationActivity extends AppCompatActivity {
     private List<TripModel> tripModels;
     boolean isHomeFragment;
 
+    public static boolean firstTime = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation);
-
         tripViewModel = new ViewModelProvider(this).get(TripViewModel.class);
 
         Intent parent = getIntent();
+        firstTime = parent.getBooleanExtra("firstTime",false);
         Log.i(TAG, "onCreate: "+parent.getStringExtra("title")+" : "+ parent.getStringExtra("dest"));
         boolean notifyWake = parent.getBooleanExtra("NotifyWakeUp",false);
         if(parent.getBooleanExtra("WakeUp",false)){
@@ -196,6 +198,7 @@ public class NavigationActivity extends AppCompatActivity {
 
             case R.id.nav_signout:
 //                FirebaseAuth.getInstance().signOut();
+                WorkManager.getInstance(this).cancelAllWork();
                 AuthUI.getInstance()
                         .signOut(NavigationActivity.this)
                         .addOnCompleteListener(new OnCompleteListener<Void>() {

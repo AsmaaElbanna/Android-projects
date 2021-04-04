@@ -54,7 +54,7 @@ public class TryService extends JobIntentService {
         //move trip to history.
         tripRepository = new TripRepository(getApplication());
         changeTripStatus(tripId);
-        Log.i("TAG", "onHandleWork: >>>>>"+tripRepository.getTripById(tripId).getValue());
+//        Log.i("TAG", "onHandleWork: >>>>>");
         if(start){
             displayMap(destination);
         }

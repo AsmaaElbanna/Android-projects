@@ -43,6 +43,7 @@ public class SignupActivity extends AppCompatActivity {
                         if(task.isSuccessful()){
                             Toast.makeText(SignupActivity.this, "Registered successfuly", Toast.LENGTH_SHORT).show();
                             Intent intent =new Intent(getApplicationContext(), NavigationActivity.class);
+                            intent.putExtra("firstTime",true);
                             startActivity(intent);
 //                            Activity parent = getParent();
 //                            parent.finish();
