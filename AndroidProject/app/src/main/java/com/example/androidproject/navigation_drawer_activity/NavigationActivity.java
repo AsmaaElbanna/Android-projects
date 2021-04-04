@@ -73,6 +73,8 @@ public class NavigationActivity extends AppCompatActivity {
     private TripViewModel tripViewModel;
     private List<TripModel> tripModels;
     boolean isHomeFragment;
+    public OnFetchData onFetchData;
+    private String userEmail =FirebaseAuth.getInstance().getCurrentUser().getEmail().replace('.','%');
 
     public static boolean firstTime = false;
 
@@ -225,28 +227,27 @@ public class NavigationActivity extends AppCompatActivity {
     void syncDataWithFirebaseDatabase(final List<TripModel> tripList) {
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference reference = firebaseDatabase.getReference();
-        reference.child("trips").removeValue();
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        reference.child("trips").child(userEmail).removeValue();
         for (int indx = 0; indx < tripList.size(); ++indx) {
             TripModel tripModel = tripList.get(indx);
-            reference.child("trips").child(uid).push().setValue(tripModel).addOnCompleteListener(task -> {
+            reference.child("trips").child(userEmail).push().setValue(tripModel).addOnCompleteListener(task -> {
                 Toast.makeText(this, "done", Toast.LENGTH_SHORT).show();
             });
         }
     }
+
     @RequiresApi(api = Build.VERSION_CODES.N)
-    List<TripModel> fetchDataWithFirebaseDatabase() {
-        List<TripModel> tripList = new ArrayList<>();
-        FirebaseDatabase.getInstance().getReference().child("trips").get().addOnCompleteListener(task -> {
+   public void fetchDataWithFirebaseDatabase() {
+        FirebaseDatabase.getInstance().getReference().child("trips").child(userEmail).get().addOnCompleteListener(task -> {
             DataSnapshot result = task.getResult();
             Iterable<DataSnapshot> children = result.getChildren();
             children.forEach(dataSnapshot -> {
                 TripModel value = dataSnapshot.getValue(TripModel.class);
-                tripList.add(value);
+                if (onFetchData != null)
+                    onFetchData.onFetch(value);
             });
         });
 
-        return tripList;
     }
 
     @Override
@@ -329,6 +330,9 @@ public class NavigationActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         Log.i(TAG, "onDestroy: DESTROYED !!");
+    }
+    public interface OnFetchData{
+        void onFetch(TripModel tripModel);
     }
 
     void cancelWorkRequest(String name){

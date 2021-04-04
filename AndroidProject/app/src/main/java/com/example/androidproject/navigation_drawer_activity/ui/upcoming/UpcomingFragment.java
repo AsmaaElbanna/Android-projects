@@ -10,6 +10,7 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.nfc.Tag;
 import android.os.Build;
@@ -66,6 +67,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+import static android.content.Context.MODE_PRIVATE;
+
 public class UpcomingFragment extends Fragment implements DataTransfer , OnRecyclerViewListener{
 
     private TripViewModel mViewModel;
@@ -103,6 +106,7 @@ public class UpcomingFragment extends Fragment implements DataTransfer , OnRecyc
         // TODO: Use the ViewModel
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -119,6 +123,25 @@ public class UpcomingFragment extends Fragment implements DataTransfer , OnRecyc
             myAdapter.setTrips(tripModels);
             // 31-3
             upcomingTrips = tripModels;
+
+            if (isFirstStartAfterLogin()) {
+                SharedPreferences.Editor editor = getActivity().getSharedPreferences("start", MODE_PRIVATE).edit();
+                editor.putBoolean("start", false);
+                editor.commit();
+                if(upcomingTrips.size()==0) {
+
+                    NavigationActivity activity = new NavigationActivity();
+                    activity.fetchDataWithFirebaseDatabase();
+                    activity.onFetchData = new NavigationActivity.OnFetchData() {
+                        @Override
+                        public void onFetch(TripModel tripModel) {
+                            Log.e(TAG + "sssasa", "onFetch: " + tripModel.getName());
+                            //inset data in room
+                        }
+
+                    };
+                }
+            }
 
             if(NavigationActivity.firstTime){
                 if(upcomingTrips.size() == 0){
@@ -231,34 +254,34 @@ public class UpcomingFragment extends Fragment implements DataTransfer , OnRecyc
     }
 
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    private List<TripModel> fetchDataWithFirebaseDatabase() {
-        List<TripModel> tripList = new ArrayList<>();
-//        Log.i(TAG, "fetchDataWithFirebaseDatabase: " + myRef.get().getResult().getValue());
-        FirebaseDatabase.getInstance().getReference().child("trips").child(FirebaseAuth.getInstance()
-                .getCurrentUser().getUid()).get().addOnCompleteListener(task -> {
-            DataSnapshot result = task.getResult();
-            Iterable<DataSnapshot> children = result.getChildren();
-            children.forEach(dataSnapshot -> {
-                TripModel value = dataSnapshot.getValue(TripModel.class);
-                upcomingTrips.add(value);
-                myAdapter.setTrips(upcomingTrips);
-                myAdapter.notifyDataSetChanged();
-
-                for(TripModel trip:upcomingTrips){
-                    long delay = getNewDelay(trip.getDate(),trip.getTime());
-                    Log.i(TAG, "fetchDataWithFirebaseDatabase: DELAY>>> "+delay);
-                    if(delay>0) {
-                        startWorkManager(delay, trip.getId(), trip.getName(),
-                                trip.getStartPoint(), trip.getEndPoint());
-                    }else{
-                        moveToHistory(trip.getId());
-                    }
-                }
-            });
-        });
-        return tripList;
-    }
+//    @RequiresApi(api = Build.VERSION_CODES.N)
+//    private List<TripModel> fetchDataWithFirebaseDatabase() {
+//        List<TripModel> tripList = new ArrayList<>();
+////        Log.i(TAG, "fetchDataWithFirebaseDatabase: " + myRef.get().getResult().getValue());
+//        FirebaseDatabase.getInstance().getReference().child("trips").child(FirebaseAuth.getInstance()
+//                .getCurrentUser().getUid()).get().addOnCompleteListener(task -> {
+//            DataSnapshot result = task.getResult();
+//            Iterable<DataSnapshot> children = result.getChildren();
+//            children.forEach(dataSnapshot -> {
+//                TripModel value = dataSnapshot.getValue(TripModel.class);
+//                upcomingTrips.add(value);
+//                myAdapter.setTrips(upcomingTrips);
+//                myAdapter.notifyDataSetChanged();
+//
+//                for(TripModel trip:upcomingTrips){
+//                    long delay = getNewDelay(trip.getDate(),trip.getTime());
+//                    Log.i(TAG, "fetchDataWithFirebaseDatabase: DELAY>>> "+delay);
+//                    if(delay>0) {
+//                        startWorkManager(delay, trip.getId(), trip.getName(),
+//                                trip.getStartPoint(), trip.getEndPoint());
+//                    }else{
+//                        moveToHistory(trip.getId());
+//                    }
+//                }
+//            });
+//        });
+//        return tripList;
+//    }
 
     @Override
     public void saveNotes(int position) {
@@ -318,6 +341,12 @@ public class UpcomingFragment extends Fragment implements DataTransfer , OnRecyc
                 .build();
 
         WorkManager.getInstance(getContext()).enqueue(tripRequest);
+    }
+
+    public boolean isFirstStartAfterLogin(){
+        SharedPreferences sharedPreferences=getActivity().getSharedPreferences("start",MODE_PRIVATE);
+        boolean result=sharedPreferences.getBoolean("start",true);
+        return result;
     }
 
     @Override
