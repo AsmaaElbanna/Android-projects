@@ -55,6 +55,7 @@
     <string name="from">Alex</string>
     <string name="to">cairo</string>
     <string name="Snooze">Snooze</string>
+    <string name="splashText">Easy To Remember Your Trpis</string>
 
     <string-array name="status">
         <item>One Way</item>
