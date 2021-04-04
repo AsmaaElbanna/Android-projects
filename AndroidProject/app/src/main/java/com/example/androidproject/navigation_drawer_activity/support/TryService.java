@@ -53,7 +53,7 @@ public class TryService extends JobIntentService {
         Log.i("TAG", "onCreate: <<<>>>>"+tripId);
         //move trip to history.
         tripRepository = new TripRepository(getApplication());
-        changeTripStatus(tripId);
+        tripRepository.updateStatusById(tripId);
 //        Log.i("TAG", "onHandleWork: >>>>>");
         if(start){
             displayMap(destination);
@@ -102,7 +102,4 @@ public class TryService extends JobIntentService {
         WorkManager.getInstance(this).enqueue(tripRequest);
     }
 
-    private void changeTripStatus(int id){
-
-    }
 }

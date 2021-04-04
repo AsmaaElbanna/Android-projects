@@ -96,7 +96,6 @@ public class NavigationActivity extends AppCompatActivity {
             moveToHistory(tripId);
             if(start){
                 displayMap(destination,tripId);
-
             }
             //finish();
         }else if(notifyWake){
