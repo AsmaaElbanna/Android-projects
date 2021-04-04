@@ -319,6 +319,7 @@ public class NavigationActivity extends AppCompatActivity {
                     startWorkManager(60*60*24*30,tripId,tripModel.getName(),
                             tripModel.getStartPoint(),tripModel.getEndPoint());
                 }
+                tripById.removeObservers(NavigationActivity.this);
                 finish();
             }
         });
